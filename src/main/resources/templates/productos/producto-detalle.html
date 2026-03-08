@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${(producto.nombre != null ? producto.nombre : 'Producto') + ' - HappyPet'}">Detalle - HappyPet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+<nav class="navbar navbar-expand-lg global-nav catalog-navbar">
+    <div class="container-fluid hp-nav-container">
+        <a class="navbar-brand fw-bold catalog-brand" th:href="@{/}">HappyPet 🐾</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navMain">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active fw-semibold" th:href="@{/productos}">Tienda</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Carrito</a></li>
+                <li class="nav-item" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/login}">Login</a></li>
+                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link" th:href="@{/usuarios/perfil}">Mi Perfil</a></li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link" th:href="@{/productos/nuevo}">Agregar producto</a></li>
+                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link text-danger" th:href="@{/logout}">Cerrar sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="app-container mt-5 mb-4">
+    <div th:if="${mensajeCarrito}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <span th:text="${mensajeCarrito}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+
+    <a th:href="@{/productos}" class="d-inline-block mb-4 text-decoration-none small link-muted">
+        ← Volver al catálogo
+    </a>
+
+    <div class="row g-4 mt-4 mb-4">
+        <!-- LEFT: Large product image -->
+        <div class="col-lg-6 col-md-6">
+            <div class="product-image-wrapper p-4">
+                <img th:src="${(producto.imagenUrl != null and !#strings.isEmpty(producto.imagenUrl)) ? producto.imagenUrl : 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/8kg_Beneful_Original_Dog_Food_Bag_%2833239682124%29.jpg/400px-8kg_Beneful_Original_Dog_Food_Bag_%2833239682124%29.jpg'}"
+                     th:alt="${producto.nombre != null ? 'Imagen de ' + producto.nombre : 'Producto'}"
+                     class="product-image img-fluid"
+                     onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/8kg_Beneful_Original_Dog_Food_Bag_%2833239682124%29.jpg/400px-8kg_Beneful_Original_Dog_Food_Bag_%2833239682124%29.jpg';">
+            </div>
+        </div>
+        <!-- RIGHT: Product information panel -->
+        <div class="col-lg-6 col-md-6">
+            <div class="product-info-panel p-4">
+                <span class="badge bg-light text-dark border mb-3" th:text="${producto.categoria != null ? producto.categoria : ''}"></span>
+                <h1 class="product-title" th:text="${producto.nombre != null ? producto.nombre : 'Producto'}">Nombre del producto</h1>
+                <p class="product-price mb-4">$ <span th:text="${#numbers.formatInteger(producto.precio, 1)}"></span></p>
+                <p class="text-muted small mb-3" th:if="${producto.stock != null}">Stock disponible: <span th:text="${producto.stock}"></span></p>
+                <p class="product-description" th:text="${producto.descripcion != null ? producto.descripcion : ''}">Descripción</p>
+
+                <form th:action="@{/carrito/agregar/{id}(id=${producto.id})}" method="post" class="mt-4">
+                    <input type="hidden" name="volver" value="detalle">
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill px-4 product-detail-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                        Agregar al carrito
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-light border-top mt-auto py-3">
+    <div class="app-container text-center text-muted small">© HappyPet — Productos para tu mascota</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
