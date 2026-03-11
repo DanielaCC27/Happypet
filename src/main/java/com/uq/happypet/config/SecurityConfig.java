@@ -26,6 +26,7 @@ public class SecurityConfig {
                                 "/usuarios/registrar",
                                 "/usuarios/recuperar",
                                 "/usuarios/verificarCorreo",
+                                "/usuarios/verificarCorreo/",
                                 "/usuarios/cambiarPassword",
                                 "/css/**"
                         ).permitAll()

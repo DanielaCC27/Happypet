@@ -32,9 +32,12 @@
 <div class="app-container d-flex flex-grow-1 justify-content-center py-5">
     <div class="form-card">
         <h2 class="section-title text-center">Recuperar contraseña</h2>
-        <form th:action="@{/usuarios/verificarCorreo}" method="post">
+        <form id="form-recuperar-password"
+              action="/usuarios/verificarCorreo"
+              th:action="@{/usuarios/verificarCorreo}"
+              method="post">
             <label class="text-label d-block">Correo electrónico</label>
-            <input type="email" name="correo" required class="mb-3">
+            <input type="email" name="correo" required class="mb-3" autocomplete="email">
             <button type="submit" class="btn btn-primary w-100 rounded-pill mt-4">Continuar</button>
         </form>
         <div th:if="${error}" class="mt-3 text-center text-danger" th:text="${error}"></div>
