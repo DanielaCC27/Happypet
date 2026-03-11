@@ -97,8 +97,12 @@ public class UsuarioController {
 
         if (ajax) {
             session.setAttribute(SESSION_ATTR_RECUPERAR_USUARIO_ID, usuario.getId());
-            String redirectUrl = request.getContextPath() + "/usuarios/cambiarPassword";
-            return ResponseEntity.ok(Map.of("success", true, "redirectUrl", redirectUrl));
+            // En flujo AJAX devolvemos solo datos, no redirecciones, para que el frontend
+            // controle la UI y no se produzcan redirecciones inesperadas a /login.
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "usuarioId", usuario.getId()
+            ));
         }
         model.addAttribute("usuarioId", usuario.getId());
         return "usuarios/cambiarPassword";

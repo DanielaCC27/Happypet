@@ -43,6 +43,19 @@
             <button type="submit" class="btn btn-primary w-100 rounded-pill mt-4">Continuar</button>
         </form>
         <div id="recuperar-error" class="mt-3 text-center text-danger" role="alert"><span th:if="${error}" th:text="${error}"></span></div>
+        <div id="nueva-password-section" class="mt-4" style="display:none;">
+            <h3 class="section-title text-center fs-5">Nueva contraseña</h3>
+            <form id="form-nueva-password"
+                  action="/usuarios/cambiarPassword"
+                  th:action="@{/usuarios/cambiarPassword}"
+                  method="post">
+                <input type="hidden" name="id" id="nueva-password-id">
+                <label class="text-label d-block">Nueva contraseña</label>
+                <input type="password" name="password" id="nueva-password-input" required class="mb-3">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill mt-2">Actualizar contraseña</button>
+            </form>
+            <div id="nueva-password-msg" class="mt-3 text-center text-success"></div>
+        </div>
         <p class="mt-4 text-center mb-0"><a th:href="@{/login}">Volver al login</a></p>
     </div>
 </div>
@@ -78,11 +91,19 @@
             })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    if (data.success && data.redirectUrl) {
-                        window.location.href = data.redirectUrl;
+                    if (data && data.success) {
+                        // Email existe: mostramos sección de nueva contraseña en la misma página
+                        var section = document.getElementById('nueva-password-section');
+                        var idInput = document.getElementById('nueva-password-id');
+                        if (section && idInput && typeof data.usuarioId !== 'undefined') {
+                            idInput.value = data.usuarioId;
+                            section.style.display = '';
+                        }
                         return;
                     }
-                    if (errorEl) errorEl.textContent = data.error || 'Error al verificar el correo.';
+                    if (errorEl) {
+                        errorEl.textContent = (data && data.error) || 'El correo no está registrado';
+                    }
                 })
                 .catch(function() {
                     if (errorEl) errorEl.textContent = 'Error de conexión. Intenta de nuevo.';
