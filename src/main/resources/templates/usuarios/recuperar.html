@@ -58,19 +58,24 @@
         if (!form) return;
         var errorEl = document.getElementById('recuperar-error');
         var url = form.getAttribute('data-verificar-url') || '/usuarios/verificarCorreo';
+        // Normaliza a ruta absoluta para evitar fallos por paths relativos en producción
+        if (url && !/^https?:\/\//i.test(url) && url.charAt(0) !== '/') {
+            url = '/' + url;
+        }
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             if (errorEl) errorEl.textContent = '';
             var btn = form.querySelector('button[type="submit"]');
             if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
             var body = new FormData(form);
-            var req = new Request(url, {
+            fetch(url, {
                 method: 'POST',
                 body: body,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            fetch(req)
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                redirect: 'follow'
+            })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     if (data.success && data.redirectUrl) {
