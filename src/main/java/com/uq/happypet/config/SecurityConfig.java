@@ -10,6 +10,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final LoginAuthenticationFailureHandler loginAuthenticationFailureHandler;
+
+    public SecurityConfig(LoginAuthenticationFailureHandler loginAuthenticationFailureHandler) {
+        this.loginAuthenticationFailureHandler = loginAuthenticationFailureHandler;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -22,12 +27,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/login",
+                                "/auth/**",
                                 "/usuarios/registro",
                                 "/usuarios/registrar",
                                 "/usuarios/recuperar",
-                                "/usuarios/verificarCorreo",
-                                "/usuarios/verificarCorreo/",
-                                "/usuarios/cambiarPassword",
                                 "/css/**"
                         ).permitAll()
 
@@ -46,6 +49,7 @@ public class SecurityConfig {
                 .formLogin(login -> login
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
+                        .failureHandler(loginAuthenticationFailureHandler)
                         .permitAll()
                 )
 

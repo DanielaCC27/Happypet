@@ -32,30 +32,15 @@
 <div class="app-container d-flex flex-grow-1 justify-content-center py-5">
     <div class="form-card">
         <h2 class="section-title text-center">Recuperar contraseña</h2>
+        <p class="text-muted small">Te enviaremos un enlace por correo para elegir una nueva contraseña.</p>
         <form id="form-recuperar-password"
-              action="/usuarios/verificarCorreo"
-              th:action="@{/usuarios/verificarCorreo}"
-              method="post"
-              data-verificar-url="/usuarios/verificarCorreo"
-              th:attr="data-verificar-url=@{/usuarios/verificarCorreo}">
+              th:attr="data-forgot-url=@{/auth/forgot-password}">
             <label class="text-label d-block">Correo electrónico</label>
-            <input type="email" name="correo" required class="mb-3" autocomplete="email">
-            <button type="submit" class="btn btn-primary w-100 rounded-pill mt-4">Continuar</button>
+            <input type="email" name="correo" id="recuperar-correo" required class="mb-3" autocomplete="email">
+            <button type="submit" class="btn btn-primary w-100 rounded-pill mt-4">Enviar enlace</button>
         </form>
-        <div id="recuperar-error" class="mt-3 text-center text-danger" role="alert"><span th:if="${error}" th:text="${error}"></span></div>
-        <div id="nueva-password-section" class="mt-4" style="display:none;">
-            <h3 class="section-title text-center fs-5">Nueva contraseña</h3>
-            <form id="form-nueva-password"
-                  action="/usuarios/cambiarPassword"
-                  th:action="@{/usuarios/cambiarPassword}"
-                  method="post">
-                <input type="hidden" name="id" id="nueva-password-id">
-                <label class="text-label d-block">Nueva contraseña</label>
-                <input type="password" name="password" id="nueva-password-input" required class="mb-3">
-                <button type="submit" class="btn btn-primary w-100 rounded-pill mt-2">Actualizar contraseña</button>
-            </form>
-            <div id="nueva-password-msg" class="mt-3 text-center text-success"></div>
-        </div>
+        <div id="recuperar-msg" class="mt-3 text-center" role="status"></div>
+        <div id="recuperar-error" class="mt-3 text-center text-danger" role="alert"></div>
         <p class="mt-4 text-center mb-0"><a th:href="@{/login}">Volver al login</a></p>
     </div>
 </div>
@@ -70,46 +55,42 @@
         var form = document.getElementById('form-recuperar-password');
         if (!form) return;
         var errorEl = document.getElementById('recuperar-error');
-        var url = form.getAttribute('data-verificar-url') || '/usuarios/verificarCorreo';
-        // Normaliza a ruta absoluta para evitar fallos por paths relativos en producción
+        var msgEl = document.getElementById('recuperar-msg');
+        var url = form.getAttribute('data-forgot-url') || '/auth/forgot-password';
         if (url && !/^https?:\/\//i.test(url) && url.charAt(0) !== '/') {
             url = '/' + url;
         }
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            e.stopPropagation();
             if (errorEl) errorEl.textContent = '';
+            if (msgEl) msgEl.textContent = '';
             var btn = form.querySelector('button[type="submit"]');
+            var correo = document.getElementById('recuperar-correo');
             if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
-            var body = new FormData(form);
+
             fetch(url, {
                 method: 'POST',
-                body: body,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                redirect: 'follow'
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: correo ? correo.value : '' })
             })
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (data && data.success) {
-                        // Email existe: mostramos sección de nueva contraseña en la misma página
-                        var section = document.getElementById('nueva-password-section');
-                        var idInput = document.getElementById('nueva-password-id');
-                        if (section && idInput && typeof data.usuarioId !== 'undefined') {
-                            idInput.value = data.usuarioId;
-                            section.style.display = '';
+                .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+                .then(function(res) {
+                    if (res.ok && res.data && res.data.message) {
+                        if (msgEl) {
+                            msgEl.className = 'mt-3 text-center text-success';
+                            msgEl.textContent = res.data.message;
                         }
                         return;
                     }
-                    if (errorEl) {
-                        errorEl.textContent = (data && data.error) || 'El correo no está registrado';
-                    }
+                    var err = (res.data && (res.data.message || res.data.error)) || 'No se pudo enviar la solicitud.';
+                    if (errorEl) errorEl.textContent = err;
                 })
                 .catch(function() {
                     if (errorEl) errorEl.textContent = 'Error de conexión. Intenta de nuevo.';
                 })
                 .finally(function() {
-                    if (btn) { btn.disabled = false; btn.textContent = 'Continuar'; }
+                    if (btn) { btn.disabled = false; btn.textContent = 'Enviar enlace'; }
                 });
         });
     });

@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
@@ -33,6 +34,7 @@ class CustomUserDetailsServiceTest {
                 "1234",
                 "ROLE_ADMIN"
         );
+        usuario.setEnabled(true);
 
         when(usuarioRepository.findByUsername("admin"))
                 .thenReturn(Optional.of(usuario));
@@ -51,7 +53,7 @@ class CustomUserDetailsServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                RuntimeException.class,
+                UsernameNotFoundException.class,
                 () -> customUserDetailsService.loadUserByUsername("noExiste")
         );
     }

@@ -1,6 +1,7 @@
 package com.uq.happypet.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "usuarios")
@@ -24,6 +25,13 @@ public class Usuario {
 
     @Column(nullable = false)
     private String role;
+
+    /**
+     * Cuenta habilitada para iniciar sesión. Los nuevos registros quedan en false hasta verificar el correo.
+     */
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private boolean enabled = true;
 
     public Usuario() {}
 
@@ -77,5 +85,13 @@ public class Usuario {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

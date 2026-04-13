@@ -19,22 +19,6 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public String registrar(Usuario usuario) {
-
-        if (usuarioRepository.findByUsername(usuario.getUsername()).isPresent()) {
-            return "USERNAME_EXISTE";
-        }
-
-        if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
-            return "CORREO_EXISTE";
-        }
-
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-
-        usuarioRepository.save(usuario);
-        return "OK";
-    }
-
     public Usuario buscarPorUsername(String username){
         return usuarioRepository.findByUsername(username).orElse(null);
     }

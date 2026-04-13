@@ -1,25 +1,32 @@
 package com.uq.happypet.controller;
 
+import com.uq.happypet.dto.RegisterRequest;
+import com.uq.happypet.exception.DuplicateAccountException;
 import com.uq.happypet.model.Usuario;
+import com.uq.happypet.service.AuthService;
 import com.uq.happypet.service.UsuarioService;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
-import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final AuthService authService;
+    private final Validator validator;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, AuthService authService, Validator validator) {
         this.usuarioService = usuarioService;
+        this.authService = authService;
+        this.validator = validator;
     }
 
     @GetMapping("/registro")
@@ -28,27 +35,35 @@ public class UsuarioController {
     }
 
     @PostMapping("/registrar")
-    public String registrarUsuario(@RequestParam String nombre,
-                                   @RequestParam String correo,
-                                   @RequestParam String username,
-                                   @RequestParam String password,
-                                   Model model) {
+    public String registrarUsuario(
+            @RequestParam String nombre,
+            @RequestParam String correo,
+            @RequestParam String username,
+            @RequestParam String password,
+            Model model) {
 
-        Usuario usuario = new Usuario(nombre, correo, username, password, "ROLE_CLIENTE");
-
-        String resultado = usuarioService.registrar(usuario);
-
-        if (resultado.equals("USERNAME_EXISTE")) {
-            model.addAttribute("error", "El nombre de usuario ya existe.");
+        RegisterRequest request = new RegisterRequest(nombre, correo, username, password);
+        Set<ConstraintViolation<RegisterRequest>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            model.addAttribute("error", violations.iterator().next().getMessage());
             return "usuarios/register";
         }
 
-        if (resultado.equals("CORREO_EXISTE")) {
-            model.addAttribute("error", "El correo ya está registrado.");
+        try {
+            authService.register(request);
+        } catch (DuplicateAccountException e) {
+            model.addAttribute("error", e.getMessage());
+            return "usuarios/register";
+        } catch (MailException e) {
+            model.addAttribute(
+                    "error",
+                    "No se pudo enviar el correo de verificación. Comprueba la configuración SMTP o inténtalo más tarde.");
             return "usuarios/register";
         }
 
-        model.addAttribute("success", "Usuario registrado correctamente.");
+        model.addAttribute(
+                "success",
+                "Cuenta creada. Revisa tu correo y haz clic en el enlace de verificación antes de iniciar sesión.");
         return "usuarios/register";
     }
 
@@ -65,65 +80,15 @@ public class UsuarioController {
     }
 
     @PostMapping("/actualizar")
-    public String actualizarUsuario(@RequestParam Long id,
-                                    @RequestParam String nombre,
-                                    @RequestParam String correo) {
+    public String actualizarUsuario(@RequestParam Long id, @RequestParam String nombre, @RequestParam String correo) {
 
         usuarioService.actualizar(id, nombre, correo);
 
         return "redirect:/usuarios/perfil";
     }
 
-    private static final String SESSION_ATTR_RECUPERAR_USUARIO_ID = "recuperarPasswordUsuarioId";
-
     @GetMapping("/recuperar")
     public String mostrarRecuperarPassword() {
         return "usuarios/recuperar";
-    }
-
-    @PostMapping("/verificarCorreo")
-    public Object verificarCorreo(@RequestParam String correo, Model model,
-                                  HttpServletRequest request, HttpSession session) {
-        Usuario usuario = usuarioService.buscarPorCorreo(correo);
-        boolean ajax = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
-
-        if (usuario == null) {
-            if (ajax) {
-                return ResponseEntity.ok(Map.of("success", false, "error", "El correo no está registrado"));
-            }
-            model.addAttribute("error", "El correo no está registrado");
-            return "usuarios/recuperar";
-        }
-
-        if (ajax) {
-            session.setAttribute(SESSION_ATTR_RECUPERAR_USUARIO_ID, usuario.getId());
-            // En flujo AJAX devolvemos solo datos, no redirecciones, para que el frontend
-            // controle la UI y no se produzcan redirecciones inesperadas a /login.
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "usuarioId", usuario.getId()
-            ));
-        }
-        model.addAttribute("usuarioId", usuario.getId());
-        return "usuarios/cambiarPassword";
-    }
-
-    @GetMapping("/cambiarPassword")
-    public String mostrarCambiarPassword(Model model, HttpSession session) {
-        Long usuarioId = (Long) session.getAttribute(SESSION_ATTR_RECUPERAR_USUARIO_ID);
-        if (usuarioId == null) {
-            return "redirect:/usuarios/recuperar";
-        }
-        model.addAttribute("usuarioId", usuarioId);
-        return "usuarios/cambiarPassword";
-    }
-
-    @PostMapping("/cambiarPassword")
-    public String cambiarPassword(@RequestParam Long id,
-                                  @RequestParam String password,
-                                  HttpSession session) {
-        usuarioService.actualizarPassword(id, password);
-        session.removeAttribute(SESSION_ATTR_RECUPERAR_USUARIO_ID);
-        return "redirect:/login";
     }
 }
