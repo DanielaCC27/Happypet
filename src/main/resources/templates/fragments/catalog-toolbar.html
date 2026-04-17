@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<!-- Model: toolbarLayout = search | pageTitle | brandOnly ; toolbarActiveSection = home | pedidos | cart | checkout | adminPedidos -->
+<header th:fragment="toolbar"
+        class="catalog-header-shell hp-header-shell bg-white border-bottom position-relative">
+    <a href="#main-content" class="skip-to-content visually-hidden-focusable rounded-pill">Saltar al contenido</a>
+    <div class="catalog-container">
+        <nav class="catalog-topbar" aria-label="Barra superior">
+            <div class="catalog-topbar__left catalog-topbar__left--with-menu">
+                <a class="catalog-brand" th:href="@{/home}" title="Ir al catálogo HappyPet">
+                    <span class="catalog-brand__paws" aria-hidden="true">🐾</span>
+                    <span class="catalog-brand__name">HappyPet</span>
+                    <span class="catalog-brand__paws" aria-hidden="true">🐾</span>
+                </a>
+            </div>
+
+            <div class="catalog-topbar__center catalog-topbar__center--search" th:if="${toolbarLayout == 'search'}">
+                <div class="hp-search-stack">
+                    <form th:action="@{/home}" method="get" class="search-bar hp-search-bar-main" role="search">
+                        <input type="hidden" name="categoria" th:value="${categoria}">
+                        <div class="hp-search-bar__row">
+                            <div class="dropdown hp-toolbar-cat-dropdown">
+                                <button type="button"
+                                        class="btn catalog-category-menu-btn hp-cat-menu-btn"
+                                        id="hp-categorias-toggle"
+                                        data-bs-toggle="dropdown"
+                                        data-bs-auto-close="outside"
+                                        aria-expanded="false"
+                                        aria-haspopup="true"
+                                        aria-controls="hp-categorias-menu"
+                                        aria-label="Abrir menú de categorías"
+                                        th:title="${categoria != null ? 'Categoría: ' + categoria : 'Categorías: todas'}">
+                                    <svg class="hp-cat-menu-btn__svg" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                        <line x1="4" y1="6" x2="20" y2="6"/>
+                                        <line x1="4" y1="12" x2="20" y2="12"/>
+                                        <line x1="4" y1="18" x2="20" y2="18"/>
+                                    </svg>
+                                </button>
+                                <ul class="dropdown-menu hp-cat-dropdown-menu catalog-categories-dropdown__menu shadow-sm"
+                                    id="hp-categorias-menu"
+                                    aria-labelledby="hp-categorias-toggle">
+                                    <li>
+                                        <a class="dropdown-item hp-cat-dropdown-item rounded-2"
+                                           th:href="@{/home}"
+                                           th:classappend="${categoria == null} ? ' active' : ''"
+                                           th:attr="aria-current=${categoria == null} ? 'page' : _">Todas</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item hp-cat-dropdown-item rounded-2"
+                                           th:href="@{/home(categoria='Alimentación')}"
+                                           th:classappend="${categoria == 'Alimentación'} ? ' active' : ''"
+                                           th:attr="aria-current=${categoria == 'Alimentación'} ? 'page' : _">Alimentación</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item hp-cat-dropdown-item rounded-2"
+                                           th:href="@{/home(categoria='Higiene')}"
+                                           th:classappend="${categoria == 'Higiene'} ? ' active' : ''"
+                                           th:attr="aria-current=${categoria == 'Higiene'} ? 'page' : _">Higiene</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item hp-cat-dropdown-item rounded-2"
+                                           th:href="@{/home(categoria='Juguetes')}"
+                                           th:classappend="${categoria == 'Juguetes'} ? ' active' : ''"
+                                           th:attr="aria-current=${categoria == 'Juguetes'} ? 'page' : _">Juguetes</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item hp-cat-dropdown-item rounded-2"
+                                           th:href="@{/home(categoria='Accesorios')}"
+                                           th:classappend="${categoria == 'Accesorios'} ? ' active' : ''"
+                                           th:attr="aria-current=${categoria == 'Accesorios'} ? 'page' : _">Accesorios</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <label class="visually-hidden" for="hp-global-search">Buscar productos</label>
+                            <input id="hp-global-search" class="search-bar-input hp-search-bar-input" type="search" name="q"
+                                   placeholder="Buscar comida, juguetes, accesorios para tu mascota…"
+                                   th:value="${q}"
+                                   autocomplete="off">
+                        </div>
+                        <button class="btn btn-primary hp-search-submit rounded-pill flex-shrink-0" type="submit">
+                            <span class="hp-search-submit__label">Buscar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="catalog-topbar__center catalog-page-head" th:if="${toolbarLayout == 'pageTitle'}">
+                <p class="catalog-page-head__eyebrow" th:text="${catalogPageEyebrow} ?: 'Tu historial'">Tu historial</p>
+                <h1 class="catalog-page-head__title" th:text="${catalogPageTitle} ?: 'Mis pedidos'">Mis pedidos</h1>
+                <p class="catalog-page-head__hint"
+                   th:text="${catalogPageHint} ?: 'Los pedidos realizados al confirmar compra desde tu carrito.'">...</p>
+            </div>
+
+            <div class="catalog-topbar__center catalog-page-head" th:if="${toolbarLayout == 'brandOnly'}">
+            </div>
+
+            <div class="catalog-topbar__right catalog-toolbar-actions" th:if="${toolbarLayout != 'brandOnly'}">
+                <div sec:authorize="isAnonymous()" class="catalog-toolbar-actions__guest d-flex gap-2">
+                    <a class="btn catalog-toolbar-btn catalog-toolbar-btn--outline" th:href="@{/login}">Iniciar sesión</a>
+                    <a class="btn catalog-toolbar-btn catalog-toolbar-btn--solid" th:href="@{/usuarios/registro}">Registrarse</a>
+                </div>
+                <div sec:authorize="isAuthenticated()" class="catalog-toolbar-actions__auth d-flex gap-2 align-items-stretch">
+                    <div class="dropdown catalog-account-dropdown catalog-toolbar-btn-wrap">
+                        <button type="button" class="btn catalog-account-dropdown__toggle catalog-toolbar-btn dropdown-toggle"
+                                id="cuenta-menu-toggle"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                aria-expanded="false" aria-haspopup="true" aria-controls="cuenta-menu">
+                            Mi cuenta
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end catalog-account-dropdown__menu" id="cuenta-menu">
+                            <li>
+                                <a class="dropdown-item catalog-account-dropdown__item"
+                                   th:href="@{/usuarios/perfil}">Perfil</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item catalog-account-dropdown__item"
+                                   th:classappend="${toolbarActiveSection == 'pedidos'} ? 'dropdown-item--current' : ''"
+                                   th:href="@{/pedidos}">Mis pedidos</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider catalog-account-dropdown__divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <span class="dropdown-header catalog-account-dropdown__section-label mb-0">Administración</span>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item catalog-account-dropdown__item" th:href="@{/productos/nuevo}">Agregar producto</a>
+                            </li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item catalog-account-dropdown__item"
+                                   th:classappend="${toolbarActiveSection == 'adminPedidos'} ? 'dropdown-item--current' : ''"
+                                   th:href="@{/admin/pedidos}">Modificar pedidos</a>
+                            </li>
+                            <li><hr class="dropdown-divider catalog-account-dropdown__divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="mb-0">
+                                    <button type="submit" class="dropdown-item catalog-account-dropdown__item catalog-account-dropdown__logout">Cerrar sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    <a class="catalog-cart-link catalog-toolbar-btn" th:href="@{/carrito}" id="catalog-cart-link"
+                       th:classappend="${toolbarActiveSection == 'cart'} ? 'catalog-cart-link--active' : ''"
+                       aria-label="Carrito de compras">
+                        <span class="catalog-cart-link__icon" aria-hidden="true">🛒</span>
+                        <span class="catalog-cart-link__text">Carrito</span>
+                        <span class="catalog-cart-link__count" id="catalog-cart-count">0</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+</body>
+</html>

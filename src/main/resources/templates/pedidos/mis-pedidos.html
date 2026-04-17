@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mis pedidos - HappyPet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light"
+      th:with="authenticatedUi=${#authentication != null and #authentication.name != null and #authentication.name != 'anonymousUser'}"
+      th:attr="data-authenticated=${authenticatedUi}">
+<header th:replace="~{fragments/site-header :: header}"></header>
+<main id="main-content" class="catalog-container flex-grow-1 py-4 pb-5">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${pedidos != null and !pedidos.isEmpty()}" class="pedidos-stack">
+        <article th:each="pedido : ${pedidos}" class="pedido-card card border-0 shadow-sm mb-4">
+            <div class="card-header pedido-card__header d-flex flex-column flex-lg-row flex-lg-wrap gap-3 justify-content-lg-between align-items-lg-center bg-white border-bottom py-3 px-3 px-lg-4">
+                <div class="pedido-card__meta">
+                    <span class="pedido-card__label">Pedido</span>
+                    <a class="fw-semibold d-block text-decoration-none" th:href="@{/pedidos/{id}(id=${pedido.id})}">#<span th:text="${pedido.id}">1</span></a>
+                </div>
+                <div class="pedido-card__meta" th:if="${pedido.fecha != null}">
+                    <span class="pedido-card__label">Fecha</span>
+                    <time class="d-block" th:datetime="${pedido.fecha}" th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}">—</time>
+                </div>
+                <div class="pedido-card__meta">
+                    <span class="pedido-card__label">Estado</span>
+                    <span class="badge rounded-pill pedido-card__badge" th:text="${pedido.estado}">—</span>
+                </div>
+                <div class="pedido-card__meta pedido-card__meta--total text-lg-end">
+                    <span class="pedido-card__label">Total</span>
+                    <span class="fw-bold fs-5 d-block">$ <span th:text="${#numbers.formatInteger(pedido.total, 1)}">0</span></span>
+                </div>
+            </div>
+            <div class="card-body px-3 px-lg-4 py-3">
+                <p class="small mb-2"><strong>Envio:</strong> <span th:text="${pedido.direccionEnvio != null ? pedido.direccionEnvio : '-'}"></span></p>
+                <p class="small mb-2"><strong>Pago:</strong> <span th:text="${pedido.metodoPago != null ? pedido.metodoPago.etiqueta : '-'}"></span></p>
+                <p class="small mb-3"><strong>Entrega:</strong> <span th:text="${pedido.fechaEntregaPreferida != null ? pedido.fechaEntregaPreferida : '-'}"></span> —
+                    <span th:text="${pedido.horarioEntrega != null ? pedido.horarioEntrega.etiqueta : '-'}"></span></p>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 pedido-table align-middle">
+                        <thead>
+                        <tr>
+                            <th scope="col">Producto</th>
+                            <th scope="col" class="text-end">Cantidad</th>
+                            <th scope="col" class="text-end">P. unitario</th>
+                            <th scope="col" class="text-end">Subtotal</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="det : ${pedido.detalles}">
+                            <td th:text="${det.producto != null ? det.producto.nombre : '-'}">—</td>
+                            <td class="text-end" th:text="${det.cantidad}">1</td>
+                            <td class="text-end">$ <span th:text="${#numbers.formatInteger(det.precioUnitario, 1)}">0</span></td>
+                            <td class="text-end">$ <span th:text="${#numbers.formatInteger(det.precioUnitario * det.cantidad, 1)}">0</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <form th:if="${pedido.estado != null and pedido.estado.name() == 'CREADO'}" th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="post" class="mt-3" onsubmit="return confirm('Cancelar este pedido?');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">Cancelar pedido</button>
+                </form>
+            </div>
+        </article>
+    </div>
+    <div th:if="${pedidos == null or pedidos.isEmpty()}" class="pedido-empty pedido-empty-wrap text-center py-5 px-4 rounded-3 border bg-white shadow-sm">
+        <p class="mb-2 fw-semibold">Aun no tienes pedidos</p>
+        <p class="text-muted small mb-4 mb-0">Cuando finalices una compra desde el carrito, el resumen aparecera aqui.</p>
+        <a class="btn btn-primary rounded-pill px-4 mt-4 d-inline-block" th:href="@{/home}">Ir al catalogo</a>
+    </div>
+</main>
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/cart.js}"></script>
+</body>
+</html>

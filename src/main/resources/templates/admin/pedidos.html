@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin pedidos - HappyPet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light"
+      th:with="authenticatedUi=${#authentication != null and #authentication.name != null and #authentication.name != 'anonymousUser'}"
+      th:attr="data-authenticated=${authenticatedUi}">
+<header th:replace="~{fragments/site-header :: header}"></header>
+<main id="main-content" class="catalog-container flex-grow-1 py-4 pb-5 hp-account-page">
+    <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-end gap-2 mb-4">
+        <div>
+            <p class="small text-uppercase text-muted mb-1" style="letter-spacing: 0.06em;">Administraci&oacute;n</p>
+            <h1 class="h4 fw-bold mb-0 hp-profile-title">Pedidos</h1>
+        </div>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div class="card border-0 shadow-sm hp-admin-card" th:if="${pedidos != null and !pedidos.isEmpty()}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>ID</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th><th class="text-end">Acci&oacute;n</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${pedidos}">
+                    <td th:text="${p.id}"></td>
+                    <td th:text="${p.usuario != null ? p.usuario.correo : '-'}"></td>
+                    <td th:text="${#temporals.format(p.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${p.estado}"></td>
+                    <td th:text="${#numbers.formatInteger(p.total, 1)}"></td>
+                    <td class="text-end"><a class="btn btn-sm btn-primary rounded-pill px-3" th:href="@{/admin/pedidos/{id}(id=${p.id})}">Ver</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p th:if="${pedidos == null or pedidos.isEmpty()}" class="text-muted rounded-3 border bg-white p-4 shadow-sm">No hay pedidos.</p>
+</main>
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/cart.js}"></script>
+</body>
+</html>

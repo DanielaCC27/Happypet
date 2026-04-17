@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:inline="none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resumen - HappyPet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light" data-authenticated="true">
+
+<header th:replace="~{fragments/site-header :: header}"></header>
+
+<main id="main-content" class="catalog-container flex-grow-1 py-4 pb-5">
+    <nav class="small text-muted mb-2" aria-label="Pasos de compra">
+        1. Entrega &rarr; <span class="fw-semibold text-dark">2. Resumen</span> &rarr; 3. Pago &rarr; 4. Facturaci&oacute;n
+    </nav>
+    <h1 class="h4 fw-bold mb-3">Revisa tu pedido</h1>
+    <p class="text-muted small mb-4">Confirma el resumen y contin&uacute;a para elegir el m&eacute;todo de pago.</p>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h2 class="h6 text-uppercase text-muted mb-3">Entrega acordada</h2>
+                    <p class="mb-1">
+                        <strong th:text="${#temporals.format(checkoutSession.fechaEntregaPreferida, 'dd/MM/yyyy')}">—</strong>
+                    </p>
+                    <p class="mb-4 text-muted" th:text="${checkoutSession.horarioEntrega.etiqueta}">Horario</p>
+                    <form th:action="@{/checkout/resumen}" method="post">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between">
+                            <a class="btn btn-outline-secondary rounded-pill" th:href="@{/checkout/entrega}">Cambiar fecha u horario</a>
+                            <button type="submit" class="btn btn-success rounded-pill px-4">Continuar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div th:replace="~{fragments/checkout-sidebar :: sidebar}"></div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/cart.js}"></script>
+</body>
+</html>

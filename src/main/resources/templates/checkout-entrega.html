@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:inline="none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrega - HappyPet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light" data-authenticated="true">
+
+<header th:replace="~{fragments/site-header :: header}"></header>
+
+<main id="main-content" class="catalog-container flex-grow-1 py-4 pb-5">
+    <nav class="small text-muted mb-2" aria-label="Pasos de compra">
+        <span class="fw-semibold text-dark">1. Entrega</span> &rarr; 2. Pago &rarr; 3. Facturaci&oacute;n y env&iacute;o
+    </nav>
+    <h1 class="h4 fw-bold mb-3">&iquest;Cu&aacute;ndo te entregamos?</h1>
+    <p class="text-muted small mb-4">
+        Elige el <strong>d&iacute;a</strong> de entrega entre
+        <strong th:text="${#temporals.format(fechaMin, 'dd/MM/yyyy')}">—</strong> y
+        <strong th:text="${#temporals.format(fechaMax, 'dd/MM/yyyy')}">—</strong>
+        (4.&ordm; a 6.&ordm; d&iacute;a calendario desde hoy). La entrega puede realizarse en cualquier momento entre
+        <strong th:text="${horarioEntregaFijo.etiqueta}">8:00 - 18:00</strong> ese d&iacute;a.
+    </p>
+
+    <div th:if="${errorCheckout}" class="alert alert-danger" th:text="${errorCheckout}"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <form th:action="@{/checkout/entrega}" method="post" class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">D&iacute;a de entrega</label>
+                        <select name="fechaEntregaPreferida" class="form-select" required>
+                            <option value="" disabled th:selected="${checkoutSession.fechaEntregaPreferida eq null}">Selecciona un d&iacute;a</option>
+                            <option th:each="d : ${fechasElegibles}"
+                                    th:value="${d}"
+                                    th:selected="${checkoutSession.fechaEntregaPreferida ne null and checkoutSession.fechaEntregaPreferida eq d}"
+                                    th:text="${#temporals.format(d, 'dd/MM/yyyy')}">—</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Franja de entrega</label>
+                        <p class="form-control-plaintext mb-0 fw-semibold">
+                            <span th:text="${horarioEntregaFijo.etiqueta}">8:00 - 18:00</span>
+                            <span> (en el transcurso del d&iacute;a)</span>
+                        </p>
+                    </div>
+                    <div class="hp-checkout-actions mt-2 pt-3 border-top">
+                        <a class="btn btn-outline-secondary rounded-pill" th:href="@{/carrito}">Volver al carrito</a>
+                        <button type="submit" class="btn btn-success rounded-pill">Continuar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-5">
+            <div th:replace="~{fragments/checkout-sidebar :: sidebar}"></div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/cart.js}"></script>
+</body>
+</html>

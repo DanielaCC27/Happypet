@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<!--
+  Pie global: misma estructura en catálogo, cuenta, checkout y admin.
+  Uso: <footer th:replace="~{fragments/site-footer :: footer}"></footer>
+-->
+<footer th:fragment="footer" class="site-footer bg-light border-top mt-auto">
+    <div class="catalog-container py-4 py-md-5">
+        <div class="row g-4 g-lg-5 align-items-start justify-content-between">
+            <div class="col-lg-4">
+                <p class="site-footer__brand mb-1">HappyPet</p>
+                <p class="site-footer__tagline text-muted small mb-0">Productos para tu mascota. Calidad y cuidado en un solo lugar.</p>
+            </div>
+            <div class="col-lg-7">
+                <p class="site-footer__nav-title small text-uppercase text-muted mb-2" style="letter-spacing: 0.06em;">Enlaces rápidos</p>
+                <nav class="site-footer__nav" aria-label="Enlaces rápidos">
+                    <ul class="site-footer__links list-unstyled mb-0">
+                        <li><a th:href="@{/home}">Catálogo</a></li>
+                        <li sec:authorize="isAuthenticated()"><a th:href="@{/carrito}">Carrito</a></li>
+                        <li sec:authorize="isAuthenticated()"><a th:href="@{/pedidos}">Mis pedidos</a></li>
+                        <li sec:authorize="isAuthenticated()"><a th:href="@{/usuarios/perfil}">Mi perfil</a></li>
+                        <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/pedidos}">Administración de pedidos</a></li>
+                        <li sec:authorize="!isAuthenticated()"><a th:href="@{/login}">Iniciar sesión</a></li>
+                        <li sec:authorize="!isAuthenticated()"><a th:href="@{/usuarios/registro}">Crear cuenta</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="site-footer__legal pt-4 mt-4 border-top border-secondary-subtle">
+            <p class="mb-0 small text-muted text-center text-lg-start">
+                &copy; <span th:text="${T(java.time.Year).now()}">2026</span> HappyPet. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

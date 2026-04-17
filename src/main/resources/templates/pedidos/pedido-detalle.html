@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pedido - HappyPet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light"
+      th:with="authenticatedUi=${#authentication != null and #authentication.name != null and #authentication.name != 'anonymousUser'}"
+      th:attr="data-authenticated=${authenticatedUi}">
+<header th:replace="~{fragments/site-header :: header}"></header>
+<main id="main-content" class="catalog-container flex-grow-1 py-4 pb-5 hp-account-page" th:if="${pedido != null}">
+    <div class="mx-auto hp-profile-page">
+        <p class="small text-uppercase text-muted mb-1" style="letter-spacing: 0.06em;">Tu pedido</p>
+        <h1 class="h4 fw-bold hp-profile-title mb-4">Pedido #<span th:text="${pedido.id}">0</span></h1>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <p class="small text-muted mb-2">Fecha: <span th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}"></span></p>
+                <p class="mb-1"><strong>Estado:</strong> <span th:text="${pedido.estado}"></span></p>
+                <p class="mb-0"><strong>Total:</strong> $<span th:text="${#numbers.formatInteger(pedido.total, 1)}"></span></p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted mb-3">Env&iacute;o y entrega</h2>
+                <p class="mb-2" th:text="${pedido.direccionEnvio}"></p>
+                <p class="mb-1"><strong>Pago:</strong> <span th:text="${pedido.metodoPago != null ? pedido.metodoPago.etiqueta : '-'}"></span></p>
+                <p class="mb-0"><strong>D&iacute;a:</strong> <span th:text="${pedido.fechaEntregaPreferida}"></span> &mdash;
+                    <span th:text="${pedido.horarioEntrega != null ? pedido.horarioEntrega.etiqueta : '-'}"></span></p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted mb-3">Facturaci&oacute;n</h2>
+                <p class="mb-1" th:if="${pedido.facturacionTipoDocumento != null}">Tipo doc.: <span th:text="${pedido.facturacionTipoDocumento}"></span></p>
+                <p class="mb-1" th:text="${pedido.facturacionNombre + (pedido.facturacionApellidos != null ? ' ' + pedido.facturacionApellidos : '')}"></p>
+                <p class="mb-1" th:text="${pedido.facturacionDocumento}"></p>
+                <p class="mb-1" th:text="${pedido.facturacionDireccion}"></p>
+                <p class="mb-0" th:text="${pedido.facturacionEmail}"></p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted mb-3">&Iacute;tems</h2>
+                <ul class="list-unstyled mb-0">
+                    <li th:each="d : ${pedido.detalles}" class="d-flex justify-content-between py-2 border-bottom border-light">
+                        <span th:text="${d.producto != null ? d.producto.nombre : '-'}">—</span>
+                        <span class="text-muted">x<span th:text="${d.cantidad}">1</span></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <a th:href="@{/pedidos}" class="btn btn-outline-secondary rounded-pill">Volver a mis pedidos</a>
+    </div>
+</main>
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/cart.js}"></script>
+</body>
+</html>

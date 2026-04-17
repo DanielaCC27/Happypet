@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<!--
+  Cabecera unificada del sitio: misma barra que el catálogo.
+  Delega en fragments/catalog-toolbar :: toolbar.
+  Modelo típico: toolbarLayout (search | pageTitle | brandOnly), q, categoria,
+  opcional toolbarActiveSection (home | pedidos | cart | checkout | adminPedidos).
+-->
+<th:block th:fragment="header" th:replace="~{fragments/catalog-toolbar :: toolbar}"></th:block>
+</body>
+</html>

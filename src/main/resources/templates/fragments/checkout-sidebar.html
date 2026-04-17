@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar" th:inline="none" class="card border-0 shadow-sm h-100">
+    <div class="card-body">
+        <h3 class="h6 text-uppercase text-muted mb-3">Resumen del pedido</h3>
+        <ul class="list-unstyled small mb-3" th:if="${cart ne null and not cart.items.isEmpty()}">
+            <li th:each="it : ${cart.items}" class="d-flex justify-content-between gap-2 border-bottom py-2">
+                <span th:text="${it.nombre + ' x' + it.cantidad}">Producto</span>
+                <span class="text-nowrap">$<span th:text="${#numbers.formatDecimal(it.subtotal, 0, 0)}">0</span></span>
+            </li>
+        </ul>
+        <p class="fw-bold mb-3" th:if="${cart ne null}">
+            Total: $<span th:text="${#numbers.formatDecimal(cart.total, 0, 0)}">0</span>
+        </p>
+        <div th:if="${checkoutSession ne null and checkoutSession.fechaEntregaPreferida ne null and checkoutSession.horarioEntrega ne null}"
+             class="small border-top pt-3">
+            <div class="text-muted text-uppercase mb-1">Entrega elegida</div>
+            <p class="mb-1" th:text="${#temporals.format(checkoutSession.fechaEntregaPreferida, 'dd/MM/yyyy')}">—</p>
+            <p class="mb-0" th:text="${checkoutSession.horarioEntrega.etiqueta}">Horario</p>
+        </div>
+        <div th:if="${checkoutSession ne null and checkoutSession.metodoPago ne null}" class="small border-top pt-3 mt-3">
+            <div class="text-muted text-uppercase mb-1">Pago</div>
+            <p class="mb-0" th:text="${checkoutSession.metodoPago.etiqueta}">—</p>
+        </div>
+    </div>
+</aside>
+</body>
+</html>
