@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,12 +17,12 @@
 <main id="main-content" class="catalog-container flex-grow-1 py-4 mt-4">
     <div class="form-card">
         <h2 class="section-title" th:text="${producto.id == null} ? 'Crear Producto' : 'Editar Producto'"></h2>
-        <form th:action="@{/productos/guardar(id=${producto.id})}" method="post">
-            <input type="hidden" name="id" th:value="${producto.id}">
+        <form th:action="@{/productos/guardar}" method="post" accept-charset="UTF-8">
+            <input type="hidden" name="id" th:if="${producto.id != null}" th:value="${producto.id}">
             <label class="text-label d-block">Nombre</label>
             <input type="text" name="nombre" th:value="${producto.nombre}" required class="mb-3">
             <label class="text-label d-block">Descripción</label>
-            <input type="text" name="descripcion" th:value="${producto.descripcion}" required class="mb-3">
+            <textarea name="descripcion" rows="5" required class="mb-3 form-control" th:text="${producto.descripcion}"></textarea>
             <label class="text-label d-block">Precio</label>
             <input type="number" step="0.01" name="precio" th:value="${producto.precio}" required class="mb-3">
             <label class="text-label d-block">Stock</label>
@@ -39,7 +39,10 @@
             <input type="text" name="imagenUrl" th:value="${producto.imagenUrl}" class="mb-3">
             <button type="submit" class="btn btn-primary rounded-pill mt-4">Guardar producto</button>
         </form>
-        <p class="mt-4 mb-0"><a th:href="@{/home}" class="btn btn-outline-primary rounded-pill">Volver al catálogo</a></p>
+        <p class="mt-4 mb-0 d-flex flex-wrap gap-2">
+            <a th:href="@{/home}" class="btn btn-outline-primary rounded-pill">Volver al catálogo</a>
+            <a th:if="${producto.id != null}" th:href="@{/productos/{id}(id=${producto.id})}" class="btn btn-outline-secondary rounded-pill">Ver ficha del producto</a>
+        </p>
     </div>
 </main>
 

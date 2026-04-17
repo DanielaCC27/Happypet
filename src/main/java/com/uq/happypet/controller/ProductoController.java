@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
@@ -41,6 +42,7 @@ public class ProductoController {
         model.addAttribute("toolbarLayout", "search");
         model.addAttribute("q", "");
         model.addAttribute("categoria", null);
+        model.addAttribute("toolbarActiveSection", "home");
         return "productos/producto-detalle";
     }
 
@@ -87,15 +89,19 @@ public class ProductoController {
             @RequestParam double precio,
             @RequestParam int stock,
             @RequestParam String categoria,
-            @RequestParam(required = false) String imagenUrl
+            @RequestParam(required = false) String imagenUrl,
+            RedirectAttributes redirectAttributes
     ) {
 
-        System.out.println("ID recibido: " + id);
+        boolean alta = id == null;
 
         Producto producto;
 
         if (id != null) {
             producto = productoService.obtenerProductoPorId(id);
+            if (producto == null) {
+                return "redirect:/home";
+            }
         } else {
             producto = new Producto();
         }
@@ -107,17 +113,21 @@ public class ProductoController {
         producto.setCategoria(categoria);
         producto.setImagenUrl(imagenUrl);
 
-        productoService.guardarProducto(producto);
+        Producto guardado = productoService.guardarProducto(producto);
 
-        return "redirect:/home";
+        redirectAttributes.addFlashAttribute(
+                "flashSuccess",
+                alta ? "Producto creado exitosamente." : "Producto actualizado exitosamente.");
+
+        return "redirect:/productos/" + guardado.getId();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/eliminar/{id}")
-    public String eliminarProducto(@PathVariable Long id) {
+    public String eliminarProducto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         productoService.eliminarProducto(id);
-
+        redirectAttributes.addFlashAttribute("flashSuccess", "Producto eliminado correctamente.");
         return "redirect:/home";
     }
 }

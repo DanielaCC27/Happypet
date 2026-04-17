@@ -6,7 +6,7 @@
 
     var DEFAULT_IMG = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/8kg_Beneful_Original_Dog_Food_Bag_%2833239682124%29.jpg/400px-8kg_Beneful_Original_Dog_Food_Bag_%2833239682124%29.jpg';
     var cartSnapshot = null;
-    var toastTimer = null;
+    var cartToastFallbackTimer = null;
 
     var paths = {
         cart: '/api/cart',
@@ -166,14 +166,27 @@
     }
 
     function showToast(message) {
-        var toast = document.getElementById('hp-toast');
-        if (!toast) return;
-        toast.textContent = message || 'Producto agregado 🐾';
-        toast.classList.add('is-visible');
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () {
-            toast.classList.remove('is-visible');
-        }, 1900);
+        var el = document.getElementById('hp-cart-toast');
+        var textEl = document.getElementById('hp-cart-toast-text');
+        if (!el) {
+            return;
+        }
+        var txt = message || 'Producto agregado al carrito';
+        if (textEl) {
+            textEl.textContent = txt;
+        }
+        if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+            var t = bootstrap.Toast.getOrCreateInstance(el, { autohide: true, delay: 5000 });
+            t.show();
+        } else {
+            el.classList.add('hp-cart-toast-fallback');
+            if (cartToastFallbackTimer) {
+                clearTimeout(cartToastFallbackTimer);
+            }
+            cartToastFallbackTimer = setTimeout(function () {
+                el.classList.remove('hp-cart-toast-fallback');
+            }, 5000);
+        }
     }
 
     function openMiniCart() {
@@ -344,7 +357,7 @@
                 addToCart(productId, 1).then(function (data) {
                     if (!data) return;
                     applyCartStateEverywhere(data);
-                    showToast('Producto agregado 🐾');
+                    showToast('Producto agregado al carrito');
                     openMiniCart();
                 }).catch(function (err) {
                     alert(err.message || 'No se pudo agregar el producto');
@@ -367,7 +380,7 @@
                     if (!data) return;
                     applyCartStateEverywhere(data);
                     if (plusBtn) {
-                        showToast('Producto agregado 🐾');
+                        showToast('Producto agregado al carrito');
                         openMiniCart();
                     }
                 }).catch(function (err) {

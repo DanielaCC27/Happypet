@@ -943,27 +943,9 @@
     justify-content: center;
 }
 
-.hp-toast {
-    position: fixed;
-    left: 50%;
-    bottom: 24px;
-    transform: translate(-50%, 16px);
-    background: #1f8f70;
-    color: #ffffff;
-    border-radius: 999px;
-    padding: 10px 16px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 1050;
-}
-
-.hp-toast.is-visible {
+/* Fallback si Bootstrap Toast no está (raro): mostrar toast de carrito */
+.hp-cart-toast-container .toast.hp-cart-toast-fallback {
     opacity: 1;
-    transform: translate(-50%, 0);
 }
 
 @keyframes hp-fade-in {
@@ -1060,6 +1042,8 @@ main.catalog-container {
     color: #555;
     line-height: 1.6;
     margin-bottom: 25px;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .product-detail-btn {
@@ -1071,6 +1055,37 @@ main.catalog-container {
 .product-detail-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+}
+
+/* Toast flotante: producto creado / actualizado */
+.product-flash-toast-wrap {
+    z-index: 1080;
+    pointer-events: none;
+}
+
+.product-flash-toast-wrap .toast {
+    pointer-events: auto;
+}
+
+.product-success-toast {
+    min-width: min(100vw - 2rem, 320px);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.product-success-toast .toast-body {
+    padding: 1.5rem 1.25rem 1.75rem;
+}
+
+.product-success-toast__icon {
+    color: #16a34a;
+    line-height: 0;
+}
+
+.product-success-toast__text {
+    font-size: 1rem;
+    color: #1a1a1a;
+    line-height: 1.45;
 }
 
 /* Pedidos — tarjetas legibles en móvil y escritorio */

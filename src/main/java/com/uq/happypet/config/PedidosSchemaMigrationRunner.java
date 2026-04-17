@@ -1,5 +1,10 @@
 package com.uq.happypet.config;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -11,6 +16,7 @@ import org.springframework.stereotype.Component;
 /**
  * Aligns legacy {@code pedidos} tables with the current JPA model.
  * Replaces SQL init scripts with DO blocks that break the PostgreSQL JDBC driver.
+ * Also widens {@code productos} columns: Hibernate ddl-auto=update does not expand varchar(255) in PostgreSQL.
  */
 @Component
 @Order(0)
@@ -26,6 +32,8 @@ public class PedidosSchemaMigrationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        migrateProductosColumnsIfPostgres();
+
         if (!pedidosTableExists()) {
             return;
         }
@@ -81,5 +89,40 @@ public class PedidosSchemaMigrationRunner implements ApplicationRunner {
                         + "WHERE table_schema = 'public' AND table_name = 'pedidos'",
                 Integer.class);
         return n != null && n > 0;
+    }
+
+    private void migrateProductosColumnsIfPostgres() {
+        if (!isPostgres()) {
+            return;
+        }
+        Integer n = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM information_schema.tables "
+                        + "WHERE table_schema = 'public' AND table_name = 'productos'",
+                Integer.class);
+        if (n == null || n == 0) {
+            return;
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE public.productos ALTER COLUMN nombre TYPE VARCHAR(500)");
+            jdbcTemplate.execute("ALTER TABLE public.productos ALTER COLUMN descripcion TYPE TEXT");
+            jdbcTemplate.execute("ALTER TABLE public.productos ALTER COLUMN imagen_url TYPE TEXT");
+            jdbcTemplate.execute("ALTER TABLE public.productos ALTER COLUMN categoria TYPE VARCHAR(100)");
+            log.info("productos: columnas alineadas (nombre, descripcion, imagen_url, categoria)");
+        } catch (Exception e) {
+            log.warn("productos schema migration skipped or partial: {}", e.getMessage());
+        }
+    }
+
+    private boolean isPostgres() {
+        DataSource ds = jdbcTemplate.getDataSource();
+        if (ds == null) {
+            return false;
+        }
+        try (Connection c = ds.getConnection()) {
+            String url = c.getMetaData().getURL();
+            return url != null && url.startsWith("jdbc:postgresql:");
+        } catch (SQLException e) {
+            return false;
+        }
     }
 }

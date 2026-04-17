@@ -23,8 +23,8 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String smtpUsername;
 
-    @Value("${app.public-base-url}")
-    private String publicBaseUrl;
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -43,8 +43,7 @@ public class EmailService {
      * Igual que {@link #sendVerificationEmail(String, String)} pero con nombre para el saludo.
      */
     public boolean sendVerificationEmail(String to, String token, String recipientName) {
-        String base = publicBaseUrl.replaceAll("/$", "");
-        String link = base + "/api/auth/verify?token=" + token;
+        String link = buildEmailLink("/api/auth/verify?token=", token);
         String nombre = (recipientName != null && !recipientName.isBlank()) ? recipientName : "Usuario";
         String cuerpo = "Hola " + nombre + ",\n\n"
                 + "Para activar tu cuenta en HappyPet, abre este enlace en el navegador:\n"
@@ -59,13 +58,26 @@ public class EmailService {
     }
 
     public void enviarRecuperacionPassword(String destinatario, String nombre, String token) {
-        String link = publicBaseUrl.replaceAll("/$", "") + "/reset-password?token=" + token;
+        String link = buildEmailLink("/reset-password?token=", token);
         String cuerpo = "Hola " + nombre + ",\n\n"
                 + "Para restablecer tu contrase\u00f1a en HappyPet, abre este enlace (v\u00e1lido por tiempo limitado):\n"
                 + link + "\n\n"
                 + "Si no solicitaste el cambio, ignora este mensaje.\n";
 
         enviar(destinatario, "Restablecer contrase\u00f1a - HappyPet", cuerpo);
+    }
+
+    /**
+     * baseUrl (from app.base-url) + endpoint path/query with token placeholder suffix + token.
+     * Local: application.properties. AWS: application-aws.properties with profile aws.
+     */
+    private String buildEmailLink(String endpointWithTokenParam, String token) {
+        String base = baseUrl == null ? "" : baseUrl.trim();
+        if (base.isEmpty()) {
+            throw new IllegalStateException("app.base-url must be set (e.g. in application.properties or application-aws.properties)");
+        }
+        base = base.replaceAll("/$", "");
+        return base + endpointWithTokenParam + token;
     }
 
     private boolean enviar(String destinatario, String asunto, String texto) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -14,12 +14,28 @@
       th:attr="data-authenticated=${authenticatedUi}">
 <header th:replace="~{fragments/site-header :: header}"></header>
 
-<main id="main-content" class="app-container mt-5 mb-4">
-    <div th:if="${mensajeCarrito}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-        <span th:text="${mensajeCarrito}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+<!-- Toast flotante: éxito al crear/editar producto (flash desde el servidor) -->
+<div th:if="${flashSuccess}" class="toast-container position-fixed top-0 end-0 p-3 product-flash-toast-wrap" role="region" aria-label="Notificación">
+    <div id="productoSuccessToast"
+         class="toast product-success-toast shadow-lg border-0"
+         role="alert"
+         aria-live="polite"
+         data-bs-autohide="true"
+         data-bs-delay="5000">
+        <div class="toast-body">
+            <div class="text-center">
+                <div class="product-success-toast__icon mb-3" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                    </svg>
+                </div>
+                <p class="mb-0 fw-semibold product-success-toast__text" th:text="${flashSuccess}">Producto creado exitosamente.</p>
+            </div>
+        </div>
     </div>
+</div>
 
+<main id="main-content" class="app-container mt-5 mb-4">
     <a th:href="@{/home}" class="d-inline-block mb-4 text-decoration-none small link-muted">
         ← Volver al catálogo
     </a>
@@ -43,6 +59,17 @@
                 <p class="text-muted small mb-3" th:if="${producto.stock != null}">Stock disponible: <span th:text="${producto.stock}"></span></p>
                 <p class="product-description" th:text="${producto.descripcion != null ? producto.descripcion : ''}">Descripción</p>
 
+                <div sec:authorize="hasRole('ADMIN')" class="product-admin-actions d-flex flex-wrap gap-2 mt-3 mb-4">
+                    <a th:href="@{/productos/editar/{id}(id=${producto.id})}" class="btn btn-primary rounded-pill px-4">
+                        Editar producto
+                    </a>
+                    <a th:href="@{/productos/eliminar/{id}(id=${producto.id})}"
+                       class="btn btn-outline-danger rounded-pill px-4"
+                       onclick="return confirm('¿Eliminar este producto? Esta acción no se puede deshacer.');">
+                        Eliminar producto
+                    </a>
+                </div>
+
                 <form th:action="@{/carrito/agregar/{id}(id=${producto.id})}" method="post" class="mt-4">
                     <input type="hidden" name="volver" value="detalle">
                     <button type="submit" class="btn btn-success btn-lg rounded-pill px-4 product-detail-btn">
@@ -61,5 +88,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/cart.js}"></script>
+<script th:if="${flashSuccess}">
+    document.addEventListener('DOMContentLoaded', function () {
+        var el = document.getElementById('productoSuccessToast');
+        if (el && typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+            var t = new bootstrap.Toast(el, { autohide: true, delay: 5000 });
+            t.show();
+        }
+    });
+</script>
 </body>
 </html>
