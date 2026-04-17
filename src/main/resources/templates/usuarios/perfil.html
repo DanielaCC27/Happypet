@@ -7,46 +7,90 @@
     <title>Perfil - HappyPet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
-<nav class="navbar navbar-expand-lg global-nav">
-    <div class="container-fluid hp-nav-container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">HappyPet 🐾</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Menú">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navMain">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/productos}">Tienda</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Carrito</a></li>
-                <li class="nav-item" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/login}">Login</a></li>
-                <li class="nav-item"><a class="nav-link active fw-semibold" th:href="@{/usuarios/perfil}">Mi Perfil</a></li>
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link" th:href="@{/productos/nuevo}">Agregar producto</a></li>
-                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link text-danger" th:href="@{/logout}">Cerrar sesión</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="d-flex flex-column min-vh-100 bg-light"
+      th:with="authenticatedUi=${#authentication != null and #authentication.name != null and #authentication.name != 'anonymousUser'}"
+      th:attr="data-authenticated=${authenticatedUi}">
 
-<div class="app-container py-5">
-    <div class="form-card">
-        <h2 class="section-title">Mi Perfil</h2>
-        <p class="mb-4"><strong>Usuario:</strong> <span th:text="${usuario.username}"></span></p>
-        <form th:action="@{/usuarios/actualizar}" method="post">
-            <input type="hidden" th:value="${usuario.id}" name="id">
-            <label class="text-label d-block">Nombre</label>
-            <input type="text" name="nombre" th:value="${usuario.nombre}" required class="mb-3">
-            <label class="text-label d-block">Correo</label>
-            <input type="email" name="correo" th:value="${usuario.correo}" required class="mb-3">
-            <button type="submit" class="btn btn-primary rounded-pill mt-4">Actualizar información</button>
-        </form>
-    </div>
-</div>
+<header th:replace="~{fragments/site-header :: header}"></header>
 
-<footer class="bg-light border-top mt-auto py-3">
-    <div class="app-container text-center text-muted small">© HappyPet — Productos para tu mascota</div>
-</footer>
+<main id="main-content" class="catalog-container flex-grow-1 py-4 pb-5 hp-account-page">
+    <div class="mx-auto hp-profile-page">
+        <p class="small text-uppercase text-muted mb-1" style="letter-spacing: 0.06em;">Tu cuenta</p>
+        <h1 class="h4 fw-bold mb-4 hp-profile-title">Mi perfil</h1>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${passwordError}" class="alert alert-danger" th:text="${passwordError}"></div>
+
+        <section class="card border-0 shadow-sm mb-4" id="cuenta-datos">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted mb-3">Datos personales</h2>
+                <p class="mb-3"><strong>Usuario:</strong> <span th:text="${usuario.username}"></span></p>
+                <form th:action="@{/usuarios/actualizar}" method="post">
+                    <input type="hidden" th:value="${usuario.id}" name="id">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" th:value="${usuario.nombre}" required class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input type="email" name="correo" th:value="${usuario.correo}" required class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary hp-btn-profile">Actualizar información</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm mb-4" id="cuenta-seguridad" th:if="${usuario.oauthProvider == null}">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted mb-3">Seguridad</h2>
+                <p class="small text-muted mb-3">La nueva contraseña debe cumplir: al menos 8 caracteres, mayúscula, minúscula, número y símbolo (@#$%^&amp;+=!).</p>
+                <form th:action="@{/usuarios/cambiar-password}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña actual</label>
+                        <input type="password" name="passwordActual" class="form-control" required autocomplete="current-password">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva contraseña</label>
+                        <input type="password" name="passwordNueva" class="form-control" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary hp-btn-profile">Cambiar contraseña</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm mb-4" sec:authorize="hasRole('ADMIN')">
+            <div class="card-body p-4">
+                <h2 class="h6 text-uppercase text-muted mb-3">Administración</h2>
+                <p class="small text-muted mb-3">Gestiona el catálogo y administra los pedidos de los clientes.</p>
+                <div class="hp-btn-group hp-btn-group--equal">
+                    <a class="btn btn-primary hp-btn-profile" th:href="@{/productos/nuevo}">
+                        Agregar producto al catálogo
+                    </a>
+                    <a class="btn btn-outline-primary hp-btn-profile" th:href="@{/admin/pedidos}">
+                        Modificar pedidos
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="card border-0 shadow-sm border-danger mb-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-danger mb-2">Eliminar cuenta</h2>
+                <p class="small text-muted mb-3">Si eliminas tu cuenta, se borrarán tus datos, pedidos y carrito asociados. Esta acción no se puede deshacer.</p>
+                <form th:action="@{/usuarios/eliminar-cuenta}" method="post"
+                      onsubmit="return confirm('¿Eliminar tu cuenta de forma permanente?');">
+                    <input type="hidden" th:value="${usuario.id}" name="id">
+                    <button type="submit" class="btn btn-outline-danger hp-btn-profile hp-btn-profile--danger">Eliminar mi cuenta</button>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/cart.js}"></script>
 </body>
 </html>

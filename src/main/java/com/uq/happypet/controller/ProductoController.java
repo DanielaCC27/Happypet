@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/productos")
@@ -19,22 +20,27 @@ public class ProductoController {
 
     @GetMapping
     public String listarProductos(@RequestParam(value = "q", required = false) String query,
-                                  @RequestParam(value = "categoria", required = false) String categoria,
-                                  Model model) {
-        var lista = productoService.listarProductos(query, categoria);
-        model.addAttribute("productos", lista != null ? lista : java.util.Collections.emptyList());
-        model.addAttribute("q", query);
-        model.addAttribute("categoria", categoria);
-        return "productos/lista";
+                                  @RequestParam(value = "categoria", required = false) String categoria) {
+        UriComponentsBuilder uri = UriComponentsBuilder.fromPath("/home");
+        if (query != null && !query.isBlank()) {
+            uri.queryParam("q", query.trim());
+        }
+        if (categoria != null && !categoria.isBlank()) {
+            uri.queryParam("categoria", categoria.trim());
+        }
+        return "redirect:" + uri.build().encode().toUriString();
     }
 
     @GetMapping("/{id}")
     public String verDetalle(@PathVariable Long id, Model model) {
         Producto producto = productoService.obtenerProductoPorId(id);
         if (producto == null) {
-            return "redirect:/productos";
+            return "redirect:/home";
         }
         model.addAttribute("producto", producto);
+        model.addAttribute("toolbarLayout", "search");
+        model.addAttribute("q", "");
+        model.addAttribute("categoria", null);
         return "productos/producto-detalle";
     }
 
@@ -43,6 +49,7 @@ public class ProductoController {
     public String mostrarFormulario(Model model) {
 
         model.addAttribute("producto", new Producto());
+        toolbarCatalogo(model);
 
         return "productos/formulario";
     }
@@ -54,12 +61,21 @@ public class ProductoController {
         Producto producto = productoService.obtenerProductoPorId(id);
 
         if(producto == null){
-            return "redirect:/productos";
+            return "redirect:/home";
         }
 
         model.addAttribute("producto", producto);
+        toolbarCatalogo(model);
 
         return "productos/formulario";
+    }
+
+    /** Atributos de la barra superior (misma experiencia que el catálogo). */
+    private static void toolbarCatalogo(Model model) {
+        model.addAttribute("toolbarLayout", "search");
+        model.addAttribute("q", "");
+        model.addAttribute("categoria", null);
+        model.addAttribute("toolbarActiveSection", "home");
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -93,7 +109,7 @@ public class ProductoController {
 
         productoService.guardarProducto(producto);
 
-        return "redirect:/productos";
+        return "redirect:/home";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -102,6 +118,6 @@ public class ProductoController {
 
         productoService.eliminarProducto(id);
 
-        return "redirect:/productos";
+        return "redirect:/home";
     }
 }

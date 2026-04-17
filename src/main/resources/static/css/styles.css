@@ -6,6 +6,10 @@
     --hp-primary: #2c6fb7;
     --hp-primary-dark: #1e4f87;
     --hp-primary-light: #3b86d5;
+    /* Orange — CTAs comercio (continuar, comprar, confirmar pedido) */
+    --hp-accent: #ea580c;
+    --hp-accent-light: #f97316;
+    --hp-accent-dark: #c2410c;
     --hp-bg-subtle: #f0f6ff;
     --hp-bg-card: #ffffff;
     --hp-text: #1b2b3b;
@@ -165,13 +169,50 @@ body {
     margin-top: 24px;
 }
 
-.login-card .login-links a {
-    display: block;
-    margin-top: 10px;
+/* Botón principal del login: mismo estilo del sistema, algo más destacado */
+.login-card .login-submit-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
 }
 
-.login-card .login-links a:first-child {
+/* Enlaces pie del login (crear cuenta / olvidé contraseña): texto, no botón */
+.login-card .login-footer-link {
+    display: block;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--hp-text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.login-card .login-footer-link:first-of-type {
     margin-top: 0;
+}
+
+.login-card .login-footer-link:hover {
+    color: var(--hp-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Login sin layout de catálogo: página centrada y pie mínimo */
+.login-page-simple {
+    background: radial-gradient(circle at top left, #f0f6ff 0, #e8f4ff 35%, #fdfdff 100%);
+}
+
+.login-page-simple__brand {
+    font-size: 1.25rem;
+    color: var(--hp-primary);
+}
+
+.login-page-simple__brand:hover {
+    color: var(--hp-primary-dark);
+}
+
+.login-page-simple__footer {
+    margin-top: auto;
 }
 
 .card-header {
@@ -304,24 +345,7 @@ button:active,
     background: linear-gradient(135deg, #c5293b, #f34c5d);
 }
 
-/* Bootstrap override: primary = blue palette */
-.btn-primary {
-    background: linear-gradient(135deg, #2c6fb7, #3b86d5) !important;
-    border-color: #2c6fb7 !important;
-}
-.btn-primary:hover {
-    background: linear-gradient(135deg, #245c96, #326fb5) !important;
-    border-color: #245c96 !important;
-}
-.btn-outline-primary {
-    color: #2c6fb7;
-    border-color: #2c6fb7;
-}
-.btn-outline-primary:hover {
-    background: rgba(44, 111, 183, 0.1);
-    color: #1e4f87;
-    border-color: #1e4f87;
-}
+/* Botones: ver secci\u00f3n \u00abUI retail\u00bb al final del archivo */
 
 /* LINKS */
 
@@ -990,4 +1014,553 @@ a:hover {
     .product-grid-catalog {
         grid-template-columns: 1fr;
     }
+}
+
+/* ========== Registro: contraseña interactiva ========== */
+
+.hp-password-field {
+    margin-bottom: var(--space-16);
+}
+
+.hp-password-field > input[type="password"] {
+    width: 100%;
+}
+
+.pw-strength-wrap {
+    margin-top: var(--space-12, 12px);
+    margin-bottom: var(--space-12, 12px);
+}
+
+.pw-strength-track {
+    height: 6px;
+    border-radius: var(--radius-pill);
+    background: #e8edf3;
+    overflow: hidden;
+    transition: background 0.25s ease;
+}
+
+.pw-strength-fill {
+    height: 100%;
+    width: 0;
+    border-radius: var(--radius-pill);
+    transition: width 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.pw-strength-fill--weak {
+    background: linear-gradient(90deg, #e57373, #ef5350);
+    box-shadow: 0 0 12px rgba(239, 83, 80, 0.35);
+}
+
+.pw-strength-fill--medium {
+    background: linear-gradient(90deg, #ffb74d, #ffa726);
+    box-shadow: 0 0 12px rgba(255, 167, 38, 0.35);
+}
+
+.pw-strength-fill--strong {
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+    box-shadow: 0 0 12px rgba(67, 160, 71, 0.35);
+}
+
+.pw-feedback {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin: 10px 0 0;
+    min-height: 1.25em;
+    transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+.pw-feedback--weak {
+    color: #c62828;
+}
+
+.pw-feedback--medium {
+    color: #e65100;
+}
+
+.pw-feedback--strong {
+    color: #2e7d32;
+}
+
+.pw-req-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-8);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+}
+
+.pw-req {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    color: #7a8794;
+    transition: color 0.25s ease, transform 0.2s ease;
+}
+
+.pw-req-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border-radius: 50%;
+    border: 2px solid #cfd8dc;
+    background: #f5f7f9;
+    transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pw-req--idle .pw-req-icon {
+    border-color: #cfd8dc;
+    background: #f5f7f9;
+}
+
+.pw-req--idle {
+    color: #7a8794;
+}
+
+.pw-req--bad {
+    color: #b71c1c;
+}
+
+.pw-req--bad .pw-req-icon {
+    border-color: #ef9a9a;
+    background: #ffebee;
+    box-shadow: inset 0 0 0 1px rgba(198, 40, 40, 0.15);
+}
+
+.pw-req--bad .pw-req-icon::after {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 2px;
+    margin: 7px auto 0;
+    background: #c62828;
+    border-radius: 1px;
+    transform: rotate(-45deg);
+}
+
+.pw-req--ok {
+    color: #2e7d32;
+}
+
+.pw-req--ok .pw-req-icon {
+    border-color: #81c784;
+    background: #e8f5e9;
+    box-shadow: 0 0 0 1px rgba(46, 125, 50, 0.12);
+}
+
+.pw-req--ok .pw-req-icon::after {
+    content: "";
+    display: block;
+    width: 5px;
+    height: 9px;
+    margin: 2px auto 0;
+    border: solid #2e7d32;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+#register-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ========== Campos con estado (nombre, etc.) ========== */
+
+.hp-field-input {
+    width: 100%;
+    border: 2px solid var(--hp-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hp-field-input:focus {
+    outline: none;
+    border-color: rgba(44, 111, 183, 0.45);
+    box-shadow: 0 0 0 3px rgba(44, 111, 183, 0.12);
+}
+
+.hp-field-input--ok {
+    border-color: #66bb6a;
+    box-shadow: 0 0 0 1px rgba(46, 125, 50, 0.2);
+}
+
+.hp-field-input--err {
+    border-color: #e57373;
+    box-shadow: 0 0 0 1px rgba(198, 40, 40, 0.12);
+}
+
+.hp-field-msg--err {
+    font-size: 0.8125rem;
+    color: #b71c1c;
+    margin: 0;
+}
+
+.form-card input:not(.hp-field-input):not([type="hidden"]) {
+    border-radius: 10px;
+    border: 1px solid var(--hp-border);
+    padding: 10px 12px;
+}
+
+/* ========== Restablecer contraseña ========== */
+
+.reset-panel-hidden {
+    display: none !important;
+}
+
+#reset-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ========== UI retail — botones, cuenta y checkout (azul + naranja) ========== */
+
+/* Primario: azul degradado, texto siempre blanco */
+.btn.btn-primary {
+    background: linear-gradient(135deg, var(--hp-primary) 0%, var(--hp-primary-light) 100%);
+    border: none;
+    color: #fff !important;
+    font-weight: 600;
+    min-height: 44px;
+    padding-left: 1.35rem;
+    padding-right: 1.35rem;
+    box-shadow: 0 4px 14px rgba(44, 111, 183, 0.28);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.btn.btn-primary:hover,
+.btn.btn-primary:focus,
+.btn.btn-primary:active {
+    color: #fff !important;
+    filter: brightness(1.05);
+    box-shadow: 0 6px 18px rgba(44, 111, 183, 0.36);
+}
+
+.btn.btn-primary:disabled {
+    opacity: 0.65;
+    color: #fff !important;
+}
+
+/* CTA comercio (antes verde Bootstrap): naranja degradado, texto blanco */
+.btn.btn-success {
+    background: linear-gradient(135deg, var(--hp-accent) 0%, var(--hp-accent-light) 100%);
+    border: none;
+    color: #fff !important;
+    font-weight: 600;
+    min-height: 44px;
+    padding-left: 1.35rem;
+    padding-right: 1.35rem;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.btn.btn-success:hover,
+.btn.btn-success:focus,
+.btn.btn-success:active {
+    color: #fff !important;
+    filter: brightness(1.05);
+    box-shadow: 0 6px 18px rgba(234, 88, 12, 0.38);
+}
+
+.btn.btn-success:disabled {
+    opacity: 0.65;
+    color: #fff !important;
+}
+
+/* Secundario suave: texto oscuro sobre fondo claro (mini carrito, etc.) */
+.btn.btn-secondary {
+    background: #eef2f7;
+    border: 1px solid #d0d9e6;
+    color: #1b2b3b !important;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+.btn.btn-secondary:hover,
+.btn.btn-secondary:focus {
+    background: #e4eaf3;
+    border-color: #c5ced9;
+    color: #1b2b3b !important;
+}
+
+.btn.btn-outline-primary {
+    border-width: 2px;
+    border-color: var(--hp-primary);
+    color: var(--hp-primary-dark) !important;
+    background: #fff;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+.btn.btn-outline-primary:hover,
+.btn.btn-outline-primary:focus {
+    background: rgba(44, 111, 183, 0.08);
+    border-color: var(--hp-primary);
+    color: var(--hp-primary-dark) !important;
+}
+
+.btn.btn-outline-secondary {
+    border: 1px solid #c5ced9;
+    color: #3d4f63 !important;
+    background: #fff;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+.btn.btn-outline-secondary:hover,
+.btn.btn-outline-secondary:focus {
+    background: #f4f7fb;
+    border-color: #a8b4c4;
+    color: #1b2b3b !important;
+}
+
+.btn.btn-outline-danger {
+    font-weight: 600;
+    min-height: 40px;
+}
+
+a.btn.btn-link {
+    color: var(--hp-primary) !important;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+a.btn.btn-link:hover {
+    color: var(--hp-primary-dark) !important;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Grupos simétricos: misma altura y reparto equitativo */
+.hp-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: stretch;
+    width: 100%;
+}
+
+.hp-btn-group--equal > .btn,
+.hp-btn-group--equal > a.btn {
+    flex: 1 1 0;
+    min-width: min(100%, 168px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hp-checkout-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: stretch;
+    width: 100%;
+}
+
+.hp-checkout-actions > .btn,
+.hp-checkout-actions > a.btn {
+    flex: 1 1 160px;
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Perfil y cuentas */
+.hp-account-page .hp-profile-page {
+    max-width: 640px;
+}
+
+.hp-profile-title {
+    color: var(--hp-primary-dark);
+    letter-spacing: -0.02em;
+}
+
+.hp-account-page #cuenta-datos,
+.hp-account-page #cuenta-seguridad {
+    scroll-margin-top: 96px;
+}
+
+/* Botones del perfil: misma altura, radio y tipografía */
+.hp-btn-profile {
+    min-height: 48px;
+    padding: 0.625rem 1.35rem !important;
+    border-radius: 12px !important;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    letter-spacing: 0.01em;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.hp-btn-profile:hover {
+    transform: translateY(-1px);
+}
+
+.hp-account-page .hp-btn-profile--danger {
+    color: #a16207 !important;
+    border-color: rgba(234, 88, 12, 0.45) !important;
+    background: rgba(255, 251, 235, 0.9) !important;
+}
+
+.hp-account-page .hp-btn-profile--danger:hover {
+    color: #92400e !important;
+    border-color: rgba(234, 88, 12, 0.55) !important;
+    background: rgba(254, 243, 199, 0.95) !important;
+}
+
+.hp-account-page .card.border-0.shadow-sm {
+    border-radius: 16px !important;
+    border: 1px solid var(--hp-border-light) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.hp-account-page .card.border-danger {
+    border-radius: 16px !important;
+}
+
+.hp-account-page .form-control:focus,
+.hp-account-page .form-select:focus {
+    border-color: rgba(44, 111, 183, 0.45);
+    box-shadow: 0 0 0 3px rgba(44, 111, 183, 0.12);
+}
+
+/* Admin — tablas y cabecera */
+.hp-admin-card {
+    border-radius: 16px;
+    border: 1px solid var(--hp-border-light);
+    overflow: hidden;
+}
+
+.hp-admin-card .table {
+    margin-bottom: 0;
+}
+
+.hp-admin-card .table thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--hp-text-muted);
+    border-bottom-width: 1px;
+    background: #f8fafc;
+}
+
+.hp-admin-toolbar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-width: 560px;
+}
+
+.hp-admin-toolbar .btn {
+    min-height: 44px;
+    width: 100%;
+}
+
+.btn.btn-sm.btn-primary {
+    min-height: 38px;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 8px rgba(44, 111, 183, 0.22);
+}
+
+@media (max-width: 576px) {
+    .hp-btn-group--equal {
+        flex-direction: column;
+    }
+
+    .hp-btn-group--equal > .btn,
+    .hp-btn-group--equal > a.btn {
+        width: 100%;
+    }
+}
+
+/* ========== Pie de página global y accesibilidad ========== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+.skip-to-content:focus {
+    position: absolute;
+    left: 1rem;
+    top: 0.75rem;
+    z-index: 2000;
+    padding: 0.5rem 1.1rem;
+    background: linear-gradient(135deg, var(--hp-primary) 0%, var(--hp-primary-light) 100%);
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(15, 35, 52, 0.18);
+    outline: 2px solid rgba(255, 255, 255, 0.55);
+    outline-offset: 2px;
+}
+
+main#main-content:focus {
+    outline: none;
+}
+
+.site-footer {
+    --site-footer-border: rgba(44, 111, 183, 0.1);
+}
+
+.site-footer .catalog-container {
+    max-width: 1300px;
+}
+
+.site-footer__brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--hp-primary-dark);
+    letter-spacing: -0.02em;
+}
+
+.site-footer__tagline {
+    max-width: 22rem;
+    line-height: 1.5;
+}
+
+.site-footer__nav-title {
+    font-size: 0.6875rem;
+}
+
+.site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+}
+
+.site-footer__links li {
+    margin: 0;
+}
+
+.site-footer__links a {
+    color: var(--hp-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.site-footer__links a:hover {
+    color: var(--hp-primary-dark);
+    border-bottom-color: rgba(44, 111, 183, 0.35);
+}
+
+.site-footer__legal {
+    opacity: 0.95;
 }

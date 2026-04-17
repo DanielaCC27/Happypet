@@ -1,70 +1,62 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - HappyPet</title>
+    <title>Iniciar sesión - HappyPet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
-<nav class="navbar navbar-expand-lg global-nav">
-    <div class="container-fluid hp-nav-container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">HappyPet 🐾</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Menú">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navMain">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/productos}">Tienda</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Carrito</a></li>
-                <li class="nav-item" sec:authorize="isAnonymous()"><a class="nav-link active fw-semibold" th:href="@{/login}">Login</a></li>
-                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link" th:href="@{/usuarios/perfil}">Mi Perfil</a></li>
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link" th:href="@{/productos/nuevo}">Agregar producto</a></li>
-                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link text-danger" th:href="@{/logout}">Cerrar sesión</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="login-page-simple d-flex flex-column min-vh-100">
 
-<div class="app-container d-flex flex-grow-1 align-items-center justify-content-center py-5">
-    <div class="form-card login-card">
-        <h1 class="page-title text-center">HappyPet 🐾</h1>
-        <p class="login-card-subtitle text-center">
-            Bienvenido a la tienda para consentir a tus mascotas
+<main id="main-content" class="flex-grow-1 d-flex align-items-center justify-content-center px-3 py-5">
+    <div class="w-100" style="max-width: 420px;">
+        <p class="text-center mb-3">
+            <a th:href="@{/home}" class="text-decoration-none fw-bold login-page-simple__brand">HappyPet</a>
         </p>
-        <form th:action="@{/login}" method="post" class="login-form">
-            <label class="text-label d-block">Usuario</label>
-            <input type="text" name="username" required class="mb-3">
-            <label class="text-label d-block">Contraseña</label>
-            <input type="password" name="password" required class="mb-3">
-            <button type="submit" class="btn btn-primary w-100 rounded-pill mt-4">Iniciar sesión</button>
-        </form>
-        <div th:if="${param.error}" class="login-error mt-3">
-            <p class="text-center text-danger mb-0" th:if="${param.error[0] == 'true'}">Credenciales incorrectas</p>
-            <p class="text-center text-danger mb-0" th:if="${param.error[0] == 'invalid_token'}">El enlace no es válido o ha caducado.</p>
+        <div class="form-card login-card shadow-sm border-0">
+            <h1 class="page-title text-center h4 mb-2">Iniciar sesión</h1>
+            <p class="login-card-subtitle text-center small mb-4">
+                Accede con tu usuario y contraseña. Si no tienes cuenta, puedes <a th:href="@{/usuarios/registro}">registrarte aquí</a>.
+            </p>
+            <form th:action="@{/login}" method="post" class="login-form">
+                <label class="text-label d-block" for="login-username">Usuario</label>
+                <input id="login-username" type="text" name="username" required class="mb-3" autocomplete="username">
+                <label class="text-label d-block" for="login-password">Contraseña</label>
+                <input id="login-password" type="password" name="password" required class="mb-3" autocomplete="current-password">
+                <button type="submit" class="btn btn-primary w-100 login-submit-btn mt-2">Iniciar sesión</button>
+            </form>
+            <div th:if="${param.cuentaEliminada != null}" class="mt-3 text-center text-muted small" role="status">
+                Tu cuenta ha sido eliminada. Puedes volver a registrarte cuando quieras.
+            </div>
+            <div th:if="${param.passwordUpdated != null and !#arrays.isEmpty(param.passwordUpdated) and param.passwordUpdated[0] == 'true'}" class="mt-3 text-center text-success" role="status">
+                Contraseña actualizada correctamente
+            </div>
+            <div th:if="${successMessage}" class="mt-3 text-center text-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="mt-3 text-center text-danger" th:text="${errorMessage}"></div>
+            <div th:if="${param.unverified != null or param.pendingVerification != null}" class="mt-3 text-center text-warning">
+                Debes verificar tu correo antes de iniciar sesión
+            </div>
+            <div th:if="${param.error}" class="login-error mt-3">
+                <p class="text-center text-danger mb-0">Credenciales incorrectas</p>
+            </div>
+            <div class="login-links mt-4 text-center">
+                <a th:href="@{/usuarios/registro}" class="login-footer-link">Crear cuenta nueva</a>
+                <a th:href="@{/usuarios/recuperar}" class="login-footer-link">¿Olvidaste tu contraseña?</a>
+            </div>
         </div>
-        <div th:if="${param.verified}" class="mt-3">
-            <p class="text-center text-success mb-0">Cuenta verificada. Ya puedes iniciar sesión.</p>
-        </div>
-        <div th:if="${param.disabled}" class="login-error mt-3">
-            <p class="text-center text-danger mb-0">Debes verificar tu correo antes de iniciar sesión.</p>
-        </div>
-        <div th:if="${success}" class="mt-3">
-            <p class="text-center text-success mb-0" th:text="${success}"></p>
-        </div>
-        <div class="login-links mt-4 text-center">
-            <a th:href="@{/usuarios/registro}" class="d-block mb-2">Crear cuenta</a>
-            <a th:href="@{/usuarios/recuperar}">¿Olvidaste tu contraseña?</a>
-        </div>
+        <p class="text-center mt-4 mb-0">
+            <a th:href="@{/home}" class="small text-muted text-decoration-none">← Volver al catálogo</a>
+        </p>
     </div>
-</div>
+</main>
 
-<footer class="bg-light border-top mt-auto py-3">
-    <div class="app-container text-center text-muted small">© HappyPet — Productos para tu mascota</div>
+<footer class="login-page-simple__footer py-3 py-md-4 border-top bg-white bg-opacity-75">
+    <div class="text-center small text-muted">
+        &copy; <span th:text="${T(java.time.Year).now()}">2026</span> HappyPet — Productos para tu mascota
+    </div>
 </footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

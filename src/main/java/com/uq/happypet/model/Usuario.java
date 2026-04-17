@@ -1,7 +1,9 @@
 package com.uq.happypet.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnDefault;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -27,11 +29,25 @@ public class Usuario {
     private String role;
 
     /**
-     * Cuenta habilitada para iniciar sesión. Los nuevos registros quedan en false hasta verificar el correo.
+     * Cuenta activa tras verificar correo. Puede ser null en BD heredada; ver {@link #isAccountActive()}.
      */
-    @Column(nullable = false)
-    @ColumnDefault("true")
-    private boolean enabled = true;
+    @Column(name = "enabled")
+    private Boolean enabled;
+
+    /**
+     * Columna legada (solo lectura): usuarios creados antes de {@code enabled} siguen activos si estaban verificados.
+     */
+    @Column(name = "email_verificado", insertable = false, updatable = false)
+    private Boolean emailVerificado;
+
+    @Column(name = "oauth_provider", length = 32)
+    private String oauthProvider;
+
+    @Column(name = "oauth_subject", unique = true, length = 128)
+    private String oauthSubject;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VerificationToken> verificationTokens = new ArrayList<>();
 
     public Usuario() {}
 
@@ -41,6 +57,13 @@ public class Usuario {
         this.username = username;
         this.password = password;
         this.role = role;
+    }
+
+    /**
+     * Indica si el usuario puede iniciar sesi\u00f3n (verificado / habilitado).
+     */
+    public boolean isAccountActive() {
+        return Boolean.TRUE.equals(enabled) || Boolean.TRUE.equals(emailVerificado);
     }
 
     public Long getId() {
@@ -87,11 +110,35 @@ public class Usuario {
         this.role = role;
     }
 
-    public boolean isEnabled() {
+    public Boolean getEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public List<VerificationToken> getVerificationTokens() {
+        return verificationTokens;
+    }
+
+    public void setVerificationTokens(List<VerificationToken> verificationTokens) {
+        this.verificationTokens = verificationTokens;
+    }
+
+    public String getOauthProvider() {
+        return oauthProvider;
+    }
+
+    public void setOauthProvider(String oauthProvider) {
+        this.oauthProvider = oauthProvider;
+    }
+
+    public String getOauthSubject() {
+        return oauthSubject;
+    }
+
+    public void setOauthSubject(String oauthSubject) {
+        this.oauthSubject = oauthSubject;
     }
 }

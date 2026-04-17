@@ -34,7 +34,6 @@ class CustomUserDetailsServiceTest {
                 "1234",
                 "ROLE_ADMIN"
         );
-        usuario.setEnabled(true);
 
         when(usuarioRepository.findByUsername("admin"))
                 .thenReturn(Optional.of(usuario));

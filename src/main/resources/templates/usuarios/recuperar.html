@@ -11,15 +11,15 @@
 <body class="d-flex flex-column min-vh-100 bg-light">
 <nav class="navbar navbar-expand-lg global-nav">
     <div class="container-fluid hp-nav-container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">HappyPet 🐾</a>
+        <a class="navbar-brand fw-bold" th:href="@{/home}">HappyPet 🐾</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Menú">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navMain">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/productos}">Tienda</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Carrito</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/home}">Inicio</a></li>
+                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link" th:href="@{/pedidos}">Mis pedidos</a></li>
+                <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link" th:href="@{/carrito}">Carrito</a></li>
                 <li class="nav-item" sec:authorize="isAnonymous()"><a class="nav-link active fw-semibold" th:href="@{/login}">Login</a></li>
                 <li class="nav-item" sec:authorize="isAuthenticated()"><a class="nav-link" th:href="@{/usuarios/perfil}">Mi Perfil</a></li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link" th:href="@{/productos/nuevo}">Agregar producto</a></li>
@@ -29,72 +29,27 @@
     </div>
 </nav>
 
-<div class="app-container d-flex flex-grow-1 justify-content-center py-5">
+<div id="main-content" class="app-container d-flex flex-grow-1 justify-content-center py-5">
     <div class="form-card">
         <h2 class="section-title text-center">Recuperar contraseña</h2>
-        <p class="text-muted small">Te enviaremos un enlace por correo para elegir una nueva contraseña.</p>
-        <form id="form-recuperar-password"
-              th:attr="data-forgot-url=@{/auth/forgot-password}">
+        <p class="text-muted small text-center mb-4">
+            Indica el correo de tu cuenta. Si existe en HappyPet, te enviaremos un enlace para elegir una nueva contraseña.
+        </p>
+        <form th:action="@{/usuarios/solicitar-recuperacion}" method="post">
             <label class="text-label d-block">Correo electrónico</label>
-            <input type="email" name="correo" id="recuperar-correo" required class="mb-3" autocomplete="email">
-            <button type="submit" class="btn btn-primary w-100 rounded-pill mt-4">Enviar enlace</button>
+            <input type="email" name="correo" required class="mb-3" autocomplete="email">
+            <button type="submit" class="btn btn-primary w-100 rounded-pill mt-2">Enviar enlace</button>
         </form>
-        <div id="recuperar-msg" class="mt-3 text-center" role="status"></div>
-        <div id="recuperar-error" class="mt-3 text-center text-danger" role="alert"></div>
+        <div th:if="${param.invalidToken != null}" class="mt-3 text-center text-danger small">
+            El enlace ha expirado o es inválido. Solicita uno nuevo aquí.
+        </div>
+        <div th:if="${infoMessage}" class="mt-3 text-center text-success" th:text="${infoMessage}"></div>
+        <div th:if="${error}" class="mt-3 text-center text-danger" th:text="${error}"></div>
         <p class="mt-4 text-center mb-0"><a th:href="@{/login}">Volver al login</a></p>
     </div>
 </div>
 
-<footer class="bg-light border-top mt-auto py-3">
-    <div class="app-container text-center text-muted small">© HappyPet — Productos para tu mascota</div>
-</footer>
+<footer th:replace="~{fragments/site-footer :: footer}"></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-(function() {
-    document.addEventListener('DOMContentLoaded', function() {
-        var form = document.getElementById('form-recuperar-password');
-        if (!form) return;
-        var errorEl = document.getElementById('recuperar-error');
-        var msgEl = document.getElementById('recuperar-msg');
-        var url = form.getAttribute('data-forgot-url') || '/auth/forgot-password';
-        if (url && !/^https?:\/\//i.test(url) && url.charAt(0) !== '/') {
-            url = '/' + url;
-        }
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (errorEl) errorEl.textContent = '';
-            if (msgEl) msgEl.textContent = '';
-            var btn = form.querySelector('button[type="submit"]');
-            var correo = document.getElementById('recuperar-correo');
-            if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: correo ? correo.value : '' })
-            })
-                .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
-                .then(function(res) {
-                    if (res.ok && res.data && res.data.message) {
-                        if (msgEl) {
-                            msgEl.className = 'mt-3 text-center text-success';
-                            msgEl.textContent = res.data.message;
-                        }
-                        return;
-                    }
-                    var err = (res.data && (res.data.message || res.data.error)) || 'No se pudo enviar la solicitud.';
-                    if (errorEl) errorEl.textContent = err;
-                })
-                .catch(function() {
-                    if (errorEl) errorEl.textContent = 'Error de conexión. Intenta de nuevo.';
-                })
-                .finally(function() {
-                    if (btn) { btn.disabled = false; btn.textContent = 'Enviar enlace'; }
-                });
-        });
-    });
-})();
-</script>
 </body>
 </html>
