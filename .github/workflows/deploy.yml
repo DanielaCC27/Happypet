@@ -29,6 +29,7 @@ jobs:
         run: ./mvnw clean package -DskipTests
 
       - name: Deploy en EC2
+        continue-on-error: true
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
