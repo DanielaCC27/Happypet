@@ -28,26 +28,32 @@ jobs:
       - name: Compilar proyecto
         run: ./mvnw clean package -DskipTests
 
+      # En EC2: compilar, matar JAR anterior, arrancar con nohup + monitor mode + disown
+      # y salir. Así el cierre de la sesión SSH no arrastra SIGTERM al Java (evita 143).
       - name: Deploy en EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 45m
+          request_pty: false
           script: |
-            cd /home/ubuntu/Happypet
-
-            git pull origin main
-
-            chmod +x mvnw
-
-            ./mvnw clean package -DskipTests
-
-            pkill -f "java -jar .*happypet-0.0.1-SNAPSHOT.jar" || true
-            sleep 2
-
-            nohup java -jar target/happypet-0.0.1-SNAPSHOT.jar --spring.profiles.active=aws > app.log 2>&1 &
-            sleep 8
-
-            pgrep -f "java -jar .*happypet-0.0.1-SNAPSHOT.jar" > /dev/null
-
+            printf '%s\n' \
+              'set -euo pipefail' \
+              'cd /home/ubuntu/Happypet' \
+              'git pull origin main' \
+              'chmod +x mvnw' \
+              './mvnw clean package -DskipTests' \
+              'pkill -f "[j]ava -jar .*happypet-0.0.1-SNAPSHOT.jar" || true' \
+              'sleep 2' \
+              'set -m' \
+              'nohup java -jar target/happypet-0.0.1-SNAPSHOT.jar --spring.profiles.active=aws > app.log 2>&1 < /dev/null &' \
+              'disown' \
+              'set +m' \
+              'sleep 3' \
+              'pgrep -f "[j]ava -jar .*happypet-0.0.1-SNAPSHOT.jar" > /dev/null' \
+              'exit 0' \
+              > /tmp/happypet-deploy.sh
+            chmod +x /tmp/happypet-deploy.sh
+            exec /bin/bash /tmp/happypet-deploy.sh
