@@ -29,7 +29,6 @@ jobs:
         run: ./mvnw clean package -DskipTests
 
       - name: Deploy en EC2
-        continue-on-error: true
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -44,7 +43,11 @@ jobs:
 
             ./mvnw clean package -DskipTests
 
-            pkill -f 'happypet-0.0.1-SNAPSHOT.jar' || true
+            pkill -f "java -jar .*happypet-0.0.1-SNAPSHOT.jar" || true
+            sleep 2
 
-            nohup java -jar target/happypet-0.0.1-SNAPSHOT.jar --spring.profiles.active=aws > app.log 2>&1 < /dev/null & sleep 5
+            nohup java -jar target/happypet-0.0.1-SNAPSHOT.jar --spring.profiles.active=aws > app.log 2>&1 &
+            sleep 8
+
+            pgrep -f "java -jar .*happypet-0.0.1-SNAPSHOT.jar" > /dev/null
 
