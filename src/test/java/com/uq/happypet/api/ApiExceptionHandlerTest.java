@@ -3,6 +3,7 @@ package com.uq.happypet.api;
 import com.uq.happypet.dto.ApiMessageResponse;
 import com.uq.happypet.exception.CartEmptyException;
 import com.uq.happypet.exception.CartItemNotFoundException;
+import com.uq.happypet.exception.PedidoNoEncontradoException;
 import com.uq.happypet.exception.ProductNotFoundException;
 import com.uq.happypet.exception.ProductOutOfStockException;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,14 @@ class ApiExceptionHandlerTest {
     @BeforeEach
     void setUp() {
         handler = new ApiExceptionHandler();
+    }
+
+    @Test
+    void handlePedidoNotFound_404() {
+        ResponseEntity<ApiMessageResponse> r =
+                handler.handlePedidoNotFound(new PedidoNoEncontradoException("no order"));
+        assertEquals(HttpStatus.NOT_FOUND, r.getStatusCode());
+        assertEquals("ORDER_NOT_FOUND", r.getBody().getError());
     }
 
     @Test

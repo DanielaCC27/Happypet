@@ -12,6 +12,8 @@ public class OrderResponse {
     private LocalDateTime fecha;
     private double total;
     private PedidoEstado estado;
+    /** Momento en que el cliente confirmo la recepcion; null si aun no lo hizo. */
+    private LocalDateTime fechaConfirmacionEntrega;
     private List<OrderItemResponse> items = new ArrayList<>();
 
     public Long getId() {
@@ -44,6 +46,14 @@ public class OrderResponse {
 
     public void setEstado(PedidoEstado estado) {
         this.estado = estado;
+    }
+
+    public LocalDateTime getFechaConfirmacionEntrega() {
+        return fechaConfirmacionEntrega;
+    }
+
+    public void setFechaConfirmacionEntrega(LocalDateTime fechaConfirmacionEntrega) {
+        this.fechaConfirmacionEntrega = fechaConfirmacionEntrega;
     }
 
     public List<OrderItemResponse> getItems() {

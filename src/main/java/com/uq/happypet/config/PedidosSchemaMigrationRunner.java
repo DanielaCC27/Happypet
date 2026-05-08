@@ -37,6 +37,7 @@ public class PedidosSchemaMigrationRunner implements ApplicationRunner {
         if (!pedidosTableExists()) {
             return;
         }
+        alignPedidosEstadoCheckConstraint();
         try {
             jdbcTemplate.execute("ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS direccion_envio VARCHAR(500)");
             jdbcTemplate.execute("ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(24)");
@@ -50,6 +51,8 @@ public class PedidosSchemaMigrationRunner implements ApplicationRunner {
             jdbcTemplate.execute("ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS facturacion_documento VARCHAR(32)");
             jdbcTemplate.execute("ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS facturacion_direccion VARCHAR(500)");
             jdbcTemplate.execute("ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS facturacion_email VARCHAR(255)");
+            jdbcTemplate.execute(
+                    "ALTER TABLE public.pedidos ADD COLUMN IF NOT EXISTS fecha_confirmacion_entrega TIMESTAMP");
 
             jdbcTemplate.execute("ALTER TABLE public.pedidos ALTER COLUMN direccion_envio TYPE VARCHAR(1000)");
             jdbcTemplate.execute("ALTER TABLE public.pedidos ALTER COLUMN facturacion_direccion TYPE VARCHAR(1000)");
@@ -89,6 +92,25 @@ public class PedidosSchemaMigrationRunner implements ApplicationRunner {
                         + "WHERE table_schema = 'public' AND table_name = 'pedidos'",
                 Integer.class);
         return n != null && n > 0;
+    }
+
+    /**
+     * Esquemas antiguos definen {@code pedidos_estado_check} sin {@code ENVIADO}; el modelo y la API sí lo usan.
+     * Sustituye la restricción por una alineada con {@link com.uq.happypet.model.PedidoEstado} (solo PostgreSQL).
+     */
+    private void alignPedidosEstadoCheckConstraint() {
+        if (!isPostgres() || !pedidosTableExists()) {
+            return;
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE public.pedidos DROP CONSTRAINT IF EXISTS pedidos_estado_check");
+            jdbcTemplate.execute(
+                    "ALTER TABLE public.pedidos ADD CONSTRAINT pedidos_estado_check CHECK (estado IN ("
+                            + "'CREADO', 'CONFIRMADO', 'ENVIADO', 'ENTREGADO', 'CANCELADO'))");
+            log.info("pedidos: restricción pedidos_estado_check alineada con PedidoEstado (incluye ENVIADO)");
+        } catch (Exception e) {
+            log.warn("pedidos estado check constraint: {}", e.getMessage());
+        }
     }
 
     private void migrateProductosColumnsIfPostgres() {

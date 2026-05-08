@@ -52,7 +52,7 @@ main.hp-cart-page {
     min-height: 48px;
     padding-left: 1.5rem !important;
     padding-right: 1.5rem !important;
-    border-radius: 12px !important;
+    border-radius: var(--hp-btn-radius) !important;
     font-weight: 600;
 }
 
@@ -118,10 +118,10 @@ main.hp-cart-page .hp-cart-item__sub {
 }
 
 main.hp-cart-page .hp-cart-remove {
-    min-height: 42px;
+    min-height: var(--hp-btn-min-height);
     padding-left: 1rem;
     padding-right: 1rem;
-    border-radius: 12px !important;
+    border-radius: var(--hp-btn-radius) !important;
     font-weight: 600;
     border-width: 1.5px !important;
     color: #b45309 !important;
@@ -203,7 +203,7 @@ main.hp-cart-page .hp-cart-remove:hover {
     min-height: 48px;
     padding-left: 1.35rem !important;
     padding-right: 1.35rem !important;
-    border-radius: 12px !important;
+    border-radius: var(--hp-btn-radius) !important;
     font-weight: 600;
     border-width: 2px !important;
 }
@@ -212,7 +212,7 @@ main.hp-cart-page .hp-cart-remove:hover {
     min-height: 50px;
     padding-left: 1.75rem !important;
     padding-right: 1.75rem !important;
-    border-radius: 12px !important;
+    border-radius: var(--hp-btn-radius) !important;
     font-weight: 700;
     letter-spacing: 0.02em;
     box-shadow: 0 6px 20px rgba(234, 88, 12, 0.28);

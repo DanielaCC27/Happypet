@@ -3,6 +3,7 @@ package com.uq.happypet.api;
 import com.uq.happypet.dto.ApiMessageResponse;
 import com.uq.happypet.exception.CartEmptyException;
 import com.uq.happypet.exception.CartItemNotFoundException;
+import com.uq.happypet.exception.PedidoNoEncontradoException;
 import com.uq.happypet.exception.ProductNotFoundException;
 import com.uq.happypet.exception.ProductOutOfStockException;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,12 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiMessageResponse> handleProductNotFound(ProductNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiMessageResponse("PRODUCT_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PedidoNoEncontradoException.class)
+    public ResponseEntity<ApiMessageResponse> handlePedidoNotFound(PedidoNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiMessageResponse("ORDER_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(CartItemNotFoundException.class)

@@ -68,6 +68,10 @@ public class Pedido {
     @Column(nullable = false, length = 255)
     private String facturacionEmail;
 
+    /** Marca de tiempo en que el cliente confirmo haber recibido el pedido (solo si estado ENTREGADO). */
+    @Column(name = "fecha_confirmacion_entrega")
+    private LocalDateTime fechaConfirmacionEntrega;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePedido> detalles = new ArrayList<>();
 
@@ -212,5 +216,13 @@ public class Pedido {
 
     public void setFacturacionEmail(String facturacionEmail) {
         this.facturacionEmail = facturacionEmail;
+    }
+
+    public LocalDateTime getFechaConfirmacionEntrega() {
+        return fechaConfirmacionEntrega;
+    }
+
+    public void setFechaConfirmacionEntrega(LocalDateTime fechaConfirmacionEntrega) {
+        this.fechaConfirmacionEntrega = fechaConfirmacionEntrega;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.uq.happypet.model.DetallePedido;
 import com.uq.happypet.model.Pedido;
+import com.uq.happypet.model.PedidoEstado;
 
 @Service
 public class EmailService {
@@ -26,8 +27,42 @@ public class EmailService {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    /** Si es true, no se usa SMTP para avisos de cambio de estado; solo log (útil en desarrollo). */
+    @Value("${app.mail.order-status.simulate:false}")
+    private boolean simulateOrderStatusNotifications;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
+    }
+
+    /**
+     * Notifica al cliente tras un cambio real de estado del pedido.
+     * Usa el correo de facturaci\u00f3n del pedido si existe; si no, el correo de la cuenta.
+     */
+    public void notificarClienteCambioEstadoPedido(Pedido pedido,
+                                                    PedidoEstado estadoAnterior,
+                                                    PedidoEstado estadoNuevo) {
+        if (estadoAnterior == estadoNuevo) {
+            return;
+        }
+        String to = resolverCorreoClientePedido(pedido);
+        if (to == null || to.isBlank()) {
+            log.warn("Pedido {}: sin correo v\u00e1lido; no se notifica cambio {} -> {}",
+                    pedido.getId(), estadoAnterior, estadoNuevo);
+            return;
+        }
+        if (simulateOrderStatusNotifications) {
+            log.info("[SIMULACI\u00d3N correo pedido] to={} pedido=#{} {} -> {} (no se envi\u00f3 SMTP)",
+                    to, pedido.getId(), estadoAnterior, estadoNuevo);
+            return;
+        }
+        switch (estadoNuevo) {
+            case CONFIRMADO -> enviarPedidoConfirmadoCliente(pedido);
+            case ENVIADO -> enviarPedidoEnviadoCliente(pedido);
+            case ENTREGADO -> enviarPedidoEntregadoCliente(pedido);
+            case CANCELADO -> enviarPedidoCanceladoCliente(pedido);
+            default -> enviarCambioEstadoPedidoGenerico(pedido, estadoAnterior, estadoNuevo, to);
+        }
     }
 
     /**
@@ -154,6 +189,46 @@ public class EmailService {
         appendDetalleProductos(cuerpo, pedido);
         cuerpo.append("\nCualquier duda, responde a este correo o contacta a HappyPet.\n");
         enviar(to, "Pedido #" + pedido.getId() + " enviado - HappyPet", cuerpo.toString());
+    }
+
+    public void enviarPedidoEntregadoCliente(Pedido pedido) {
+        String to = resolverCorreoClientePedido(pedido);
+        String nombre = pedido.getUsuario().getNombre();
+        StringBuilder cuerpo = new StringBuilder();
+        cuerpo.append("Hola ").append(nombre != null ? nombre : "cliente").append(",\n\n");
+        cuerpo.append("Tu pedido #").append(pedido.getId()).append(" consta como ENTREGADO.\n\n");
+        appendResumenPedido(cuerpo, pedido);
+        appendSeccionEnvio(cuerpo, pedido);
+        appendSeccionFacturacion(cuerpo, pedido);
+        appendDetalleProductos(cuerpo, pedido);
+        cuerpo.append("\nGracias por confiar en HappyPet.\n");
+        enviar(to, "Pedido #" + pedido.getId() + " entregado - HappyPet", cuerpo.toString());
+    }
+
+    public void enviarPedidoCanceladoCliente(Pedido pedido) {
+        String to = resolverCorreoClientePedido(pedido);
+        String nombre = pedido.getUsuario().getNombre();
+        StringBuilder cuerpo = new StringBuilder();
+        cuerpo.append("Hola ").append(nombre != null ? nombre : "cliente").append(",\n\n");
+        cuerpo.append("Tu pedido #").append(pedido.getId()).append(" ha sido CANCELADO.\n")
+                .append("Si no solicitaste esta acci\u00f3n o tienes preguntas, contacta con HappyPet.\n\n");
+        appendResumenPedido(cuerpo, pedido);
+        enviar(to, "Pedido #" + pedido.getId() + " cancelado - HappyPet", cuerpo.toString());
+    }
+
+    private void enviarCambioEstadoPedidoGenerico(Pedido pedido,
+                                                   PedidoEstado anterior,
+                                                   PedidoEstado nuevo,
+                                                   String to) {
+        String nombre = pedido.getUsuario().getNombre();
+        StringBuilder cuerpo = new StringBuilder();
+        cuerpo.append("Hola ").append(nombre != null ? nombre : "cliente").append(",\n\n");
+        cuerpo.append("El estado de tu pedido #").append(pedido.getId())
+                .append(" ha pasado de ").append(anterior.name())
+                .append(" a ").append(nuevo.name()).append(".\n\n");
+        appendResumenPedido(cuerpo, pedido);
+        cuerpo.append("\nPara m\u00e1s informaci\u00f3n, visita HappyPet.\n");
+        enviar(to, "Pedido #" + pedido.getId() + " actualizado - HappyPet", cuerpo.toString());
     }
 
     private String resolverCorreoClientePedido(Pedido pedido) {

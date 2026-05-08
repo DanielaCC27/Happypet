@@ -1,9 +1,11 @@
 package com.uq.happypet.service;
 
 import com.uq.happypet.dto.CheckoutRequest;
+import com.uq.happypet.dto.OrderApiEstados;
 import com.uq.happypet.dto.OrderItemResponse;
 import com.uq.happypet.dto.OrderResponse;
 import com.uq.happypet.exception.CartEmptyException;
+import com.uq.happypet.exception.PedidoNoEncontradoException;
 import com.uq.happypet.exception.ProductNotFoundException;
 import com.uq.happypet.exception.ProductOutOfStockException;
 import com.uq.happypet.model.*;
@@ -127,13 +129,13 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Pedido obtenerPedidoAdmin(Long id) {
         return pedidoRepository.findFetchedById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado."));
+                .orElseThrow(() -> new PedidoNoEncontradoException("Pedido no encontrado."));
     }
 
     @Transactional(readOnly = true)
     public Pedido obtenerPedidoUsuario(String username, Long id) {
         Pedido p = pedidoRepository.findFetchedById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado."));
+                .orElseThrow(() -> new PedidoNoEncontradoException("Pedido no encontrado."));
         if (!p.getUsuario().getUsername().equals(username)) {
             throw new IllegalArgumentException("No autorizado.");
         }
@@ -143,16 +145,18 @@ public class OrderService {
     @Transactional
     public void cancelarPedidoUsuario(String username, Long id) {
         Pedido p = pedidoRepository.findFetchedById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado."));
+                .orElseThrow(() -> new PedidoNoEncontradoException("Pedido no encontrado."));
         if (!p.getUsuario().getUsername().equals(username)) {
             throw new IllegalArgumentException("No autorizado.");
         }
         if (p.getEstado() != PedidoEstado.CREADO) {
             throw new IllegalStateException("Solo se pueden cancelar pedidos en estado creado.");
         }
+        PedidoEstado anterior = p.getEstado();
         devolverStockAlInventario(p);
         p.setEstado(PedidoEstado.CANCELADO);
         pedidoRepository.save(p);
+        emailService.notificarClienteCambioEstadoPedido(p, anterior, PedidoEstado.CANCELADO);
     }
 
     /**
@@ -175,7 +179,7 @@ public class OrderService {
     @Transactional
     public void eliminarPedidoAdmin(Long id) {
         Pedido p = pedidoRepository.findFetchedById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado."));
+                .orElseThrow(() -> new PedidoNoEncontradoException("Pedido no encontrado."));
         if (p.getEstado() != PedidoEstado.CANCELADO) {
             devolverStockAlInventario(p);
         }
@@ -183,9 +187,39 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponse actualizarEstadoPedidoAdministracion(Long id, String estadoApi) {
+        PedidoEstado nuevo = OrderApiEstados.toPedidoEstado(estadoApi);
+        actualizarEstadoAdmin(id, nuevo);
+        return toOrderResponse(obtenerPedidoAdmin(id));
+    }
+
+    /**
+     * El cliente confirma que recibio el pedido; solo permitido cuando el estado es ENTREGADO
+     * y aun no se habia registrado confirmacion.
+     */
+    @Transactional
+    public OrderResponse confirmarEntregaCliente(String username, Long pedidoId) {
+        Pedido p = pedidoRepository.findFetchedById(pedidoId)
+                .orElseThrow(() -> new PedidoNoEncontradoException("Pedido no encontrado."));
+        if (!p.getUsuario().getUsername().equals(username)) {
+            throw new IllegalArgumentException("No autorizado.");
+        }
+        if (p.getEstado() != PedidoEstado.ENTREGADO) {
+            throw new IllegalStateException(
+                    "Solo puede confirmarse la recepcion cuando el pedido esta ENTREGADO.");
+        }
+        if (p.getFechaConfirmacionEntrega() != null) {
+            throw new IllegalStateException("La recepcion de este pedido ya fue confirmada.");
+        }
+        p.setFechaConfirmacionEntrega(LocalDateTime.now());
+        pedidoRepository.save(p);
+        return toOrderResponse(p);
+    }
+
+    @Transactional
     public void actualizarEstadoAdmin(Long id, PedidoEstado nuevo) {
         Pedido p = pedidoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado."));
+                .orElseThrow(() -> new PedidoNoEncontradoException("Pedido no encontrado."));
         if (nuevo == null) {
             throw new IllegalArgumentException("Estado inv\u00e1lido.");
         }
@@ -196,12 +230,7 @@ public class OrderService {
         p.setEstado(nuevo);
         pedidoRepository.save(p);
         Pedido fetched = pedidoRepository.findFetchedById(id).orElse(p);
-        if (anterior != PedidoEstado.CONFIRMADO && nuevo == PedidoEstado.CONFIRMADO) {
-            emailService.enviarPedidoConfirmadoCliente(fetched);
-        }
-        if (anterior != PedidoEstado.ENVIADO && nuevo == PedidoEstado.ENVIADO) {
-            emailService.enviarPedidoEnviadoCliente(fetched);
-        }
+        emailService.notificarClienteCambioEstadoPedido(fetched, anterior, nuevo);
     }
 
     private OrderResponse toOrderResponse(Pedido pedido) {
@@ -210,6 +239,7 @@ public class OrderService {
         dto.setFecha(pedido.getFecha());
         dto.setTotal(pedido.getTotal());
         dto.setEstado(pedido.getEstado());
+        dto.setFechaConfirmacionEntrega(pedido.getFechaConfirmacionEntrega());
         for (DetallePedido d : pedido.getDetalles()) {
             Producto p = d.getProducto();
             double subtotal = d.getPrecioUnitario() * d.getCantidad();

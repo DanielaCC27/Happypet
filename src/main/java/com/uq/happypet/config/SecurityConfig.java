@@ -51,6 +51,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        .requestMatchers(HttpMethod.PATCH, "/api/orders/*/status").hasRole("ADMIN")
+
                         .requestMatchers("/productos/nuevo").hasRole("ADMIN")
                         .requestMatchers("/productos/guardar").hasRole("ADMIN")
                         .requestMatchers("/productos/editar/**").hasRole("ADMIN")

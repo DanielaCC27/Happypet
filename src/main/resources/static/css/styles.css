@@ -1,7 +1,28 @@
 /* ========== DESIGN SYSTEM - HappyPet ========== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
+    /* Botones y controles — mismo radio, altura mínima y tipografía en todo el sitio */
+    --hp-btn-radius: 14px;
+    --hp-btn-min-height: 46px;
+    --hp-btn-font-size: 0.9375rem;
+    --hp-btn-font-weight: 600;
+    --hp-btn-padding-y: 0.65rem;
+    --hp-btn-padding-x: 1.25rem;
+    --hp-btn-letter-spacing: 0.01em;
+    /* Bootstrap 5.3 — hereda tokens HappyPet */
+    --bs-btn-border-radius: var(--hp-btn-radius);
+    --bs-btn-border-radius-sm: 12px;
+    --bs-btn-border-radius-lg: 16px;
+    --bs-btn-font-size: var(--hp-btn-font-size);
+    --bs-btn-font-weight: var(--hp-btn-font-weight);
+    --bs-btn-padding-y: var(--hp-btn-padding-y);
+    --bs-btn-padding-x: var(--hp-btn-padding-x);
+    --bs-btn-line-height: 1.45;
+    /* Tipografía fluida (escala con viewport) */
+    --hp-font-page-title: clamp(1.45rem, 1.1rem + 1.4vw, 2rem);
+    --hp-font-section: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
+    --hp-font-body: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
     /* Blue palette */
     --hp-primary: #2c6fb7;
     --hp-primary-dark: #1e4f87;
@@ -34,6 +55,11 @@
     --shadow-md: 0 10px 24px rgba(18, 80, 149, 0.12);
 }
 
+html {
+    font-size: clamp(15px, 0.35vw + 14.25px, 17px);
+    -webkit-text-size-adjust: 100%;
+}
+
 /* Global container - same on all pages */
 .app-container {
     max-width: 1300px;
@@ -43,6 +69,7 @@
 
 body {
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: var(--hp-font-body);
     background: radial-gradient(circle at top left, #f0f6ff 0, #e8f4ff 35%, #fdfdff 100%);
     margin: 0;
     padding: 0;
@@ -105,8 +132,8 @@ body {
 }
 
 /* Typography - design system */
-.page-title { font-size: var(--font-page-title); font-weight: 700; margin-bottom: var(--space-16); color: #1b3f73; }
-.section-title { font-size: var(--font-section-title); font-weight: 600; margin-bottom: var(--space-16); color: #1b3f73; }
+.page-title { font-size: var(--hp-font-page-title); font-weight: 700; margin-bottom: var(--space-16); color: #1b3f73; letter-spacing: -0.02em; }
+.section-title { font-size: var(--hp-font-section); font-weight: 600; margin-bottom: var(--space-16); color: #1b3f73; letter-spacing: -0.015em; }
 .text-label { font-size: var(--font-label); font-weight: 600; color: var(--hp-text-muted); margin-bottom: var(--space-8); }
 .text-description { font-size: var(--font-description); color: #555; line-height: var(--line-height-body); }
 
@@ -235,12 +262,12 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 32px;
+    font-size: var(--hp-font-page-title);
     font-weight: 700;
 }
 
 h2 {
-    font-size: 24px;
+    font-size: var(--hp-font-section);
     font-weight: 600;
 }
 
@@ -290,59 +317,50 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(44, 111, 183, 0.18);
 }
 
-/* BOTONES */
+/* BOTONES — solo .btn (evita estilizar .navbar-toggler, cierre mini-carrito, etc.) */
 
-button,
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 11px 18px;
-    background: linear-gradient(135deg, #2c6fb7, #3b86d5);
-    color: #ffffff;
-    border: none;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 600;
+    gap: 0.4rem;
+    min-height: var(--hp-btn-min-height);
+    padding: var(--hp-btn-padding-y) var(--hp-btn-padding-x);
+    border-radius: var(--hp-btn-radius) !important;
+    font-size: var(--hp-btn-font-size);
+    font-weight: var(--hp-btn-font-weight);
+    letter-spacing: var(--hp-btn-letter-spacing);
     cursor: pointer;
-    letter-spacing: 0.02em;
-    box-shadow: 0 10px 24px rgba(18, 80, 149, 0.35);
-    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-button:hover,
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 16px 30px rgba(18, 80, 149, 0.4);
-    background: linear-gradient(135deg, #245c96, #326fb5);
+/* rounded-pill en plantillas = mismo radio que el resto (homogeneidad) */
+.btn.rounded-pill {
+    border-radius: var(--hp-btn-radius) !important;
 }
 
-button:active,
-.btn:active {
-    transform: translateY(0);
-    box-shadow: 0 6px 18px rgba(18, 80, 149, 0.35);
+.btn:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(44, 111, 183, 0.35);
 }
 
-.btn-secondary {
-    background: #f1f5fb;
-    color: #1b3f73;
-    box-shadow: none;
+.btn.btn-success:focus-visible {
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.35);
 }
 
-.btn-secondary:hover {
-    background: #e4ecfa;
-    box-shadow: 0 8px 18px rgba(38, 68, 116, 0.12);
+.btn-sm {
+    min-height: 40px;
+    font-size: 0.875rem;
+    --bs-btn-padding-y: 0.4rem;
+    --bs-btn-padding-x: 1rem;
 }
 
-.btn-danger {
-    background: linear-gradient(135deg, #e33a4a, #ff606f);
-    box-shadow: 0 10px 24px rgba(204, 46, 76, 0.4);
-}
-
-.btn-danger:hover {
-    background: linear-gradient(135deg, #c5293b, #f34c5d);
+.btn-lg {
+    min-height: 50px;
+    font-size: 1.05rem;
+    --bs-btn-padding-y: 0.75rem;
+    --bs-btn-padding-x: 1.5rem;
 }
 
 /* Botones: ver secci\u00f3n \u00abUI retail\u00bb al final del archivo */
@@ -440,7 +458,7 @@ a:hover {
 
 .navbar-link {
     padding: 7px 14px;
-    border-radius: 999px;
+    border-radius: var(--hp-btn-radius);
     font-size: 14px;
     color: #26476a;
     background: transparent;
@@ -454,6 +472,7 @@ a:hover {
 
 .navbar-cta {
     padding: 8px 18px;
+    border-radius: var(--hp-btn-radius);
 }
 
 /* NAVBAR CATALOG: brand left, menu buttons aligned to the far right */
@@ -1223,8 +1242,8 @@ a:hover {
     background: linear-gradient(135deg, var(--hp-primary) 0%, var(--hp-primary-light) 100%);
     border: none;
     color: #fff !important;
-    font-weight: 600;
-    min-height: 44px;
+    font-weight: var(--hp-btn-font-weight);
+    min-height: var(--hp-btn-min-height);
     padding-left: 1.35rem;
     padding-right: 1.35rem;
     box-shadow: 0 4px 14px rgba(44, 111, 183, 0.28);
@@ -1232,11 +1251,18 @@ a:hover {
 }
 
 .btn.btn-primary:hover,
-.btn.btn-primary:focus,
-.btn.btn-primary:active {
+.btn.btn-primary:focus {
     color: #fff !important;
     filter: brightness(1.05);
     box-shadow: 0 6px 18px rgba(44, 111, 183, 0.36);
+    transform: translateY(-1px);
+}
+
+.btn.btn-primary:active {
+    color: #fff !important;
+    filter: brightness(1.02);
+    box-shadow: 0 4px 12px rgba(44, 111, 183, 0.3);
+    transform: translateY(0);
 }
 
 .btn.btn-primary:disabled {
@@ -1249,8 +1275,8 @@ a:hover {
     background: linear-gradient(135deg, var(--hp-accent) 0%, var(--hp-accent-light) 100%);
     border: none;
     color: #fff !important;
-    font-weight: 600;
-    min-height: 44px;
+    font-weight: var(--hp-btn-font-weight);
+    min-height: var(--hp-btn-min-height);
     padding-left: 1.35rem;
     padding-right: 1.35rem;
     box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
@@ -1258,11 +1284,18 @@ a:hover {
 }
 
 .btn.btn-success:hover,
-.btn.btn-success:focus,
-.btn.btn-success:active {
+.btn.btn-success:focus {
     color: #fff !important;
     filter: brightness(1.05);
     box-shadow: 0 6px 18px rgba(234, 88, 12, 0.38);
+    transform: translateY(-1px);
+}
+
+.btn.btn-success:active {
+    color: #fff !important;
+    filter: brightness(1.02);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.28);
+    transform: translateY(0);
 }
 
 .btn.btn-success:disabled {
@@ -1275,8 +1308,8 @@ a:hover {
     background: #eef2f7;
     border: 1px solid #d0d9e6;
     color: #1b2b3b !important;
-    font-weight: 600;
-    min-height: 44px;
+    font-weight: var(--hp-btn-font-weight);
+    min-height: var(--hp-btn-min-height);
 }
 
 .btn.btn-secondary:hover,
@@ -1284,6 +1317,12 @@ a:hover {
     background: #e4eaf3;
     border-color: #c5ced9;
     color: #1b2b3b !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(38, 68, 116, 0.1);
+}
+
+.btn.btn-secondary:active {
+    transform: translateY(0);
 }
 
 .btn.btn-outline-primary {
@@ -1291,8 +1330,8 @@ a:hover {
     border-color: var(--hp-primary);
     color: var(--hp-primary-dark) !important;
     background: #fff;
-    font-weight: 600;
-    min-height: 44px;
+    font-weight: var(--hp-btn-font-weight);
+    min-height: var(--hp-btn-min-height);
 }
 
 .btn.btn-outline-primary:hover,
@@ -1300,14 +1339,19 @@ a:hover {
     background: rgba(44, 111, 183, 0.08);
     border-color: var(--hp-primary);
     color: var(--hp-primary-dark) !important;
+    transform: translateY(-1px);
+}
+
+.btn.btn-outline-primary:active {
+    transform: translateY(0);
 }
 
 .btn.btn-outline-secondary {
     border: 1px solid #c5ced9;
     color: #3d4f63 !important;
     background: #fff;
-    font-weight: 600;
-    min-height: 44px;
+    font-weight: var(--hp-btn-font-weight);
+    min-height: var(--hp-btn-min-height);
 }
 
 .btn.btn-outline-secondary:hover,
@@ -1315,11 +1359,25 @@ a:hover {
     background: #f4f7fb;
     border-color: #a8b4c4;
     color: #1b2b3b !important;
+    transform: translateY(-1px);
+}
+
+.btn.btn-outline-secondary:active {
+    transform: translateY(0);
 }
 
 .btn.btn-outline-danger {
-    font-weight: 600;
-    min-height: 40px;
+    font-weight: var(--hp-btn-font-weight);
+    min-height: var(--hp-btn-min-height);
+}
+
+.btn.btn-outline-danger:hover,
+.btn.btn-outline-danger:focus {
+    transform: translateY(-1px);
+}
+
+.btn.btn-outline-danger:active {
+    transform: translateY(0);
 }
 
 a.btn.btn-link {
@@ -1364,7 +1422,7 @@ a.btn.btn-link:hover {
 .hp-checkout-actions > .btn,
 .hp-checkout-actions > a.btn {
     flex: 1 1 160px;
-    min-height: 46px;
+    min-height: var(--hp-btn-min-height);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1389,7 +1447,7 @@ a.btn.btn-link:hover {
 .hp-btn-profile {
     min-height: 48px;
     padding: 0.625rem 1.35rem !important;
-    border-radius: 12px !important;
+    border-radius: var(--hp-btn-radius) !important;
     font-weight: 600;
     font-size: 0.9375rem;
     letter-spacing: 0.01em;
@@ -1456,7 +1514,7 @@ a.btn.btn-link:hover {
 }
 
 .hp-admin-toolbar .btn {
-    min-height: 44px;
+    min-height: var(--hp-btn-min-height);
     width: 100%;
 }
 

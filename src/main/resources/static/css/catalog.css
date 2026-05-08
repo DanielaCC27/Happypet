@@ -38,7 +38,7 @@
 }
 
 .catalog-category-menu-btn {
-    border-radius: 999px !important;
+    border-radius: var(--hp-btn-radius) !important;
     border: 1px solid rgba(44, 111, 183, 0.28) !important;
     background: #fff !important;
     color: #1e4f87 !important;
@@ -74,13 +74,13 @@
 }
 
 .catalog-toolbar-btn {
-    min-height: 44px;
+    min-height: var(--hp-btn-min-height);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 999px !important;
-    font-weight: 600;
-    font-size: 0.95rem;
+    border-radius: var(--hp-btn-radius) !important;
+    font-weight: var(--hp-btn-font-weight);
+    font-size: var(--hp-btn-font-size);
     padding-left: 16px !important;
     padding-right: 16px !important;
 }
@@ -207,7 +207,7 @@
 .hp-search-submit {
     padding-left: 1.35rem !important;
     padding-right: 1.35rem !important;
-    min-height: 44px;
+    min-height: var(--hp-btn-min-height);
 }
 
 .hp-header-shell {
@@ -263,7 +263,7 @@
 
 .catalog-page-head__title {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.35rem);
     font-weight: 700;
     color: #1b3f73;
     line-height: 1.25;
@@ -357,7 +357,7 @@
 
 .catalog-account-link {
     padding: 8px 14px;
-    border-radius: 999px;
+    border-radius: var(--hp-btn-radius);
     color: #26476a;
     font-weight: 600;
     transition: background-color 0.2s ease;
@@ -374,7 +374,7 @@
     gap: 8px;
     background: linear-gradient(135deg, #2c6fb7 0%, #3b86d5 100%);
     color: #ffffff !important;
-    border-radius: 999px;
+    border-radius: var(--hp-btn-radius);
     padding: 8px 14px 8px 12px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 6px 18px rgba(44, 111, 183, 0.3);
@@ -408,8 +408,8 @@
     background: #f0f4fb !important;
     color: #26476a !important;
     border: 1px solid rgba(44, 111, 183, 0.22) !important;
-    font-weight: 600;
-    border-radius: 999px;
+    font-weight: var(--hp-btn-font-weight);
+    border-radius: var(--hp-btn-radius);
     padding: 8px 16px;
     font-size: 0.95rem;
     box-shadow: none !important;
@@ -493,8 +493,8 @@
 
 .catalog-account-dropdown__logout {
     margin-top: 0.35rem;
-    font-weight: 600 !important;
-    border-radius: 10px !important;
+    font-weight: var(--hp-btn-font-weight) !important;
+    border-radius: var(--hp-btn-radius) !important;
     color: #ffffff !important;
     background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
     box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
@@ -514,7 +514,9 @@
 .catalog-container {
     max-width: 1300px;
     margin: 0 auto;
-    padding: 20px;
+    padding: clamp(14px, 3vw, 22px) clamp(14px, 4vw, 28px) clamp(18px, 4vw, 32px);
+    padding-left: max(clamp(14px, 4vw, 28px), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(14px, 4vw, 28px), env(safe-area-inset-right, 0px));
 }
 
 /* --- SEARCH BAR --- */
@@ -588,12 +590,12 @@
 }
 
 .category-button {
-    padding: 8px 18px;
-    border-radius: 20px;
+    padding: var(--hp-btn-padding-y) var(--hp-btn-padding-x);
+    border-radius: var(--hp-btn-radius);
     background: #f3f5fa;
     border: none;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--hp-btn-font-size);
+    font-weight: var(--hp-btn-font-weight);
     color: #374151;
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
@@ -781,14 +783,15 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 12px 20px;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    min-height: var(--hp-btn-min-height);
+    padding: var(--hp-btn-padding-y) var(--hp-btn-padding-x);
+    font-size: var(--hp-btn-font-size);
+    font-weight: var(--hp-btn-font-weight);
+    letter-spacing: var(--hp-btn-letter-spacing);
     color: #fff;
     background: linear-gradient(135deg, #2c6fb7, #3b86d5);
     border: none;
-    border-radius: 12px;
+    border-radius: var(--hp-btn-radius);
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, filter 0.18s ease;
     box-shadow: 0 4px 14px rgba(44, 111, 183, 0.28);
@@ -852,9 +855,9 @@
 
 .mini-cart {
     position: fixed;
-    right: 20px;
+    right: max(12px, env(safe-area-inset-right, 0px));
     top: 88px;
-    width: min(360px, calc(100vw - 24px));
+    width: min(360px, calc(100vw - max(24px, env(safe-area-inset-left, 0px) + env(safe-area-inset-right, 0px))));
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 20px 44px rgba(0, 0, 0, 0.18);
@@ -1023,7 +1026,7 @@ main.catalog-container {
 }
 
 .product-title {
-    font-size: 2rem;
+    font-size: clamp(1.35rem, 1rem + 1.5vw, 2rem);
     font-weight: 700;
     margin-bottom: 15px;
     color: #1a1a1a;

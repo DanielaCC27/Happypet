@@ -2,10 +2,14 @@ package com.uq.happypet.api;
 
 import com.uq.happypet.dto.CheckoutRequest;
 import com.uq.happypet.dto.OrderResponse;
+import com.uq.happypet.dto.OrderStatusUpdateRequest;
 import com.uq.happypet.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +32,25 @@ public class OrderApiController {
                                                   @Valid @RequestBody CheckoutRequest body) {
         OrderResponse response = orderService.checkout(principal.getName(), body);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<OrderResponse> actualizarEstado(
+            @PathVariable Long id,
+            @Valid @RequestBody OrderStatusUpdateRequest body) {
+        OrderResponse response = orderService.actualizarEstadoPedidoAdministracion(id, body.getEstado());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * El usuario autenticado confirma que recibio su pedido (requiere estado ENTREGADO).
+     */
+    @PostMapping("/{id}/confirmacion-entrega")
+    public ResponseEntity<OrderResponse> confirmarEntregaPedido(
+            Principal principal,
+            @PathVariable Long id) {
+        OrderResponse response = orderService.confirmarEntregaCliente(principal.getName(), id);
+        return ResponseEntity.ok(response);
     }
 }

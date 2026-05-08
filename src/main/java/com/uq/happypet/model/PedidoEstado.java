@@ -4,5 +4,6 @@ public enum PedidoEstado {
     CREADO,
     CONFIRMADO,
     ENVIADO,
+    ENTREGADO,
     CANCELADO
 }
