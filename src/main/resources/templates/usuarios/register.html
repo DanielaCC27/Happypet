@@ -35,9 +35,10 @@
                 <div class="position-relative">
                     <input id="password" type="password" name="password" required autocomplete="new-password"
                            class="mb-0 pe-5" aria-describedby="pw-feedback pw-req-list">
-                    <button type="button" class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
-                            aria-label="Mostrar u ocultar contraseña"
-                            onclick="togglePassword('password'); return false;">
+                    <button type="button"
+                            class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                            data-hp-toggle-password="password"
+                            aria-label="Mostrar u ocultar contraseña">
                         <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
                     </button>
                 </div>
