@@ -23,10 +23,14 @@
                 <label class="text-label d-block" for="login-username">Usuario</label>
                 <input id="login-username" type="text" name="username" required class="mb-3" autocomplete="username">
                 <label class="text-label d-block" for="login-password">Contraseña</label>
-                <div class="hp-input-with-toggle mb-3">
+                <div class="position-relative mb-3">
                     <input id="login-password" type="password" name="password" required autocomplete="current-password"
-                           class="hp-password-input mb-0">
-                    <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
+                           class="pe-5">
+                    <button type="button" class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                            aria-label="Mostrar u ocultar contraseña"
+                            onclick="togglePassword('login-password'); return false;">
+                        <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
+                    </button>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 login-submit-btn mt-2">Iniciar sesión</button>
             </form>

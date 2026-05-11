@@ -49,18 +49,26 @@
                 <form th:action="@{/usuarios/cambiar-password}" method="post">
                     <div class="mb-3 hp-profile-password-wrap">
                         <label class="form-label" for="profile-password-actual">Contraseña actual</label>
-                        <div class="hp-input-with-toggle">
+                        <div class="position-relative">
                             <input id="profile-password-actual" type="password" name="passwordActual" required
-                                   autocomplete="current-password" class="hp-password-input">
-                            <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
+                                   autocomplete="current-password" class="form-control pe-5">
+                            <button type="button" class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                                    aria-label="Mostrar u ocultar contraseña"
+                                    onclick="togglePassword('profile-password-actual'); return false;">
+                                <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
+                            </button>
                         </div>
                     </div>
                     <div class="mb-3 hp-profile-password-wrap">
                         <label class="form-label" for="profile-password-nueva">Nueva contraseña</label>
-                        <div class="hp-input-with-toggle">
+                        <div class="position-relative">
                             <input id="profile-password-nueva" type="password" name="passwordNueva" required
-                                   autocomplete="new-password" class="hp-password-input">
-                            <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
+                                   autocomplete="new-password" class="form-control pe-5">
+                            <button type="button" class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                                    aria-label="Mostrar u ocultar contraseña"
+                                    onclick="togglePassword('profile-password-nueva'); return false;">
+                                <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
+                            </button>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-outline-primary hp-btn-profile">Cambiar contraseña</button>
