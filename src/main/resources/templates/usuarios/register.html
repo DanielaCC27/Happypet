@@ -33,8 +33,11 @@
             <div class="hp-password-field">
                 <label class="text-label d-block" for="password">Contraseña</label>
                 <div class="hp-input-with-toggle">
-                    <input id="password" type="password" name="password" required class="mb-0"
-                           autocomplete="new-password" aria-describedby="pw-feedback pw-req-list">
+                    <div class="hp-pw-input-slot">
+                        <input id="password" class="hp-pw-secret mb-0" type="password" name="password" required
+                               autocomplete="new-password" aria-describedby="pw-feedback pw-req-list">
+                        <input type="text" class="hp-pw-plain mb-0" autocomplete="off" spellcheck="false" tabindex="0" inputmode="text">
+                    </div>
                     <button type="button" class="hp-password-toggle" aria-label="Mostrar contraseña" aria-pressed="false"
                             onclick="if(window.hpPasswordToggle){window.hpPasswordToggle(this);}return false;">
                         <img class="hp-password-toggle-icon hp-password-toggle-icon--show" th:src="@{/images/password-eye.svg}" width="22" height="22" alt="" decoding="async">

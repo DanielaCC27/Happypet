@@ -175,7 +175,7 @@ body {
     margin-bottom: 14px;
 }
 
-.login-card .login-form .hp-input-with-toggle input {
+.login-card .login-form .hp-pw-input-slot input {
     width: auto;
     min-width: 0;
     margin-bottom: 0;
@@ -1047,7 +1047,7 @@ a:hover {
     margin-bottom: var(--space-16);
 }
 
-.hp-password-field .hp-input-with-toggle input {
+.hp-password-field .hp-pw-input-slot {
     flex: 1 1 auto;
     min-width: 0;
 }
@@ -1070,10 +1070,17 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(44, 111, 183, 0.12);
 }
 
-.hp-input-with-toggle > input[type="password"],
-.hp-input-with-toggle > input[type="text"] {
+.hp-pw-input-slot {
     flex: 1 1 auto;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hp-pw-input-slot .hp-pw-secret,
+.hp-pw-input-slot .hp-pw-plain {
+    width: 100%;
     margin: 0;
     padding: 10px 12px;
     border: none !important;
@@ -1083,8 +1090,8 @@ a:hover {
     outline: none;
 }
 
-.hp-input-with-toggle > input[type="password"]:focus,
-.hp-input-with-toggle > input[type="text"]:focus {
+.hp-pw-input-slot .hp-pw-secret:focus,
+.hp-pw-input-slot .hp-pw-plain:focus {
     outline: none;
     box-shadow: none !important;
 }
@@ -1315,9 +1322,9 @@ a:hover {
     padding: 10px 12px;
 }
 
-/* El borde lo lleva .hp-input-with-toggle; el input interior va sin caja propia */
-.form-card .hp-input-with-toggle > input[type="password"],
-.form-card .hp-input-with-toggle > input[type="text"] {
+/* El borde lo lleva .hp-input-with-toggle; inputs dentro del slot sin caja propia */
+.form-card .hp-pw-input-slot .hp-pw-secret,
+.form-card .hp-pw-input-slot .hp-pw-plain {
     border: none;
     border-radius: 0;
     box-shadow: none;
