@@ -175,7 +175,7 @@ body {
     margin-bottom: 14px;
 }
 
-.login-card .login-form .hp-pw-input-slot input {
+.login-card .login-form .hp-input-with-toggle .hp-password-input {
     width: auto;
     min-width: 0;
     margin-bottom: 0;
@@ -1047,7 +1047,7 @@ a:hover {
     margin-bottom: var(--space-16);
 }
 
-.hp-password-field .hp-pw-input-slot {
+.hp-password-field .hp-password-input {
     flex: 1 1 auto;
     min-width: 0;
 }
@@ -1070,17 +1070,11 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(44, 111, 183, 0.12);
 }
 
-.hp-pw-input-slot {
+.hp-input-with-toggle > .hp-password-input,
+.hp-input-with-toggle > input[type="password"]:not(.hp-password-input),
+.hp-input-with-toggle > input[type="text"] {
     flex: 1 1 auto;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.hp-pw-input-slot .hp-pw-secret,
-.hp-pw-input-slot .hp-pw-plain {
-    width: 100%;
     margin: 0;
     padding: 10px 12px;
     border: none !important;
@@ -1090,8 +1084,7 @@ a:hover {
     outline: none;
 }
 
-.hp-pw-input-slot .hp-pw-secret:focus,
-.hp-pw-input-slot .hp-pw-plain:focus {
+.hp-input-with-toggle > .hp-password-input:focus {
     outline: none;
     box-shadow: none !important;
 }
@@ -1322,12 +1315,18 @@ a:hover {
     padding: 10px 12px;
 }
 
-/* El borde lo lleva .hp-input-with-toggle; inputs dentro del slot sin caja propia */
-.form-card .hp-pw-input-slot .hp-pw-secret,
-.form-card .hp-pw-input-slot .hp-pw-plain {
+/* El borde lo lleva .hp-input-with-toggle; input sin segunda caja */
+.form-card .hp-input-with-toggle > .hp-password-input,
+.form-card .hp-input-with-toggle > input[type="password"]:not(.hp-password-input),
+.form-card .hp-input-with-toggle > input[type="text"] {
     border: none;
     border-radius: 0;
     box-shadow: none;
+}
+
+/* Mi perfil: ancho dentro de la tarjeta */
+.hp-profile-password-wrap .hp-input-with-toggle {
+    max-width: 100%;
 }
 
 /* ========== Restablecer contraseña ========== */

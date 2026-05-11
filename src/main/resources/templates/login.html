@@ -24,15 +24,9 @@
                 <input id="login-username" type="text" name="username" required class="mb-3" autocomplete="username">
                 <label class="text-label d-block" for="login-password">Contraseña</label>
                 <div class="hp-input-with-toggle mb-3">
-                    <div class="hp-pw-input-slot">
-                        <input id="login-password" class="hp-pw-secret mb-0" type="password" name="password" required autocomplete="current-password">
-                        <input type="text" class="hp-pw-plain mb-0" autocomplete="off" spellcheck="false" tabindex="0" inputmode="text">
-                    </div>
-                    <button type="button" class="hp-password-toggle" aria-label="Mostrar contraseña" aria-pressed="false"
-                            onclick="if(window.hpPasswordToggle){window.hpPasswordToggle(this);}return false;">
-                        <img class="hp-password-toggle-icon hp-password-toggle-icon--show" th:src="@{/images/password-eye.svg}" width="22" height="22" alt="" decoding="async">
-                        <img class="hp-password-toggle-icon hp-password-toggle-icon--hide" th:src="@{/images/password-eye-off.svg}" width="22" height="22" alt="" decoding="async" hidden>
-                    </button>
+                    <input id="login-password" type="password" name="password" required autocomplete="current-password"
+                           class="hp-password-input mb-0">
+                    <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 login-submit-btn mt-2">Iniciar sesión</button>
             </form>

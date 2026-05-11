@@ -33,16 +33,9 @@
             <div class="hp-password-field">
                 <label class="text-label d-block" for="password">Contraseña</label>
                 <div class="hp-input-with-toggle">
-                    <div class="hp-pw-input-slot">
-                        <input id="password" class="hp-pw-secret mb-0" type="password" name="password" required
-                               autocomplete="new-password" aria-describedby="pw-feedback pw-req-list">
-                        <input type="text" class="hp-pw-plain mb-0" autocomplete="off" spellcheck="false" tabindex="0" inputmode="text">
-                    </div>
-                    <button type="button" class="hp-password-toggle" aria-label="Mostrar contraseña" aria-pressed="false"
-                            onclick="if(window.hpPasswordToggle){window.hpPasswordToggle(this);}return false;">
-                        <img class="hp-password-toggle-icon hp-password-toggle-icon--show" th:src="@{/images/password-eye.svg}" width="22" height="22" alt="" decoding="async">
-                        <img class="hp-password-toggle-icon hp-password-toggle-icon--hide" th:src="@{/images/password-eye-off.svg}" width="22" height="22" alt="" decoding="async" hidden>
-                    </button>
+                    <input id="password" type="password" name="password" required autocomplete="new-password"
+                           class="hp-password-input mb-0" aria-describedby="pw-feedback pw-req-list">
+                    <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
                 </div>
 
                 <div class="pw-strength-wrap">

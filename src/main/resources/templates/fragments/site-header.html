@@ -8,5 +8,14 @@
   opcional toolbarActiveSection (home | pedidos | cart | checkout | adminPedidos).
 -->
 <th:block th:fragment="header" th:replace="~{fragments/catalog-toolbar :: toolbar}"></th:block>
+<!-- Solo para th:replace: boton ver/ocultar contrasena junto al input -->
+<th:block th:fragment="hpPasswordToggle">
+    <button type="button" class="hp-password-toggle" aria-pressed="false">
+        <img class="hp-password-toggle-icon hp-password-toggle-icon--show"
+             th:src="@{/images/password-eye.svg}" width="22" height="22" alt="" decoding="async">
+        <img class="hp-password-toggle-icon hp-password-toggle-icon--hide"
+             th:src="@{/images/password-eye-off.svg}" width="22" height="22" alt="" decoding="async" hidden="hidden">
+    </button>
+</th:block>
 </body>
 </html>

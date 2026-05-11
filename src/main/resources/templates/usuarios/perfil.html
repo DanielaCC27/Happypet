@@ -47,13 +47,21 @@
                 <h2 class="h6 text-uppercase text-muted mb-3">Seguridad</h2>
                 <p class="small text-muted mb-3">La nueva contraseña debe cumplir: al menos 8 caracteres, mayúscula, minúscula, número y símbolo (@#$%^&amp;+=!).</p>
                 <form th:action="@{/usuarios/cambiar-password}" method="post">
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña actual</label>
-                        <input type="password" name="passwordActual" class="form-control" required autocomplete="current-password">
+                    <div class="mb-3 hp-profile-password-wrap">
+                        <label class="form-label" for="profile-password-actual">Contraseña actual</label>
+                        <div class="hp-input-with-toggle">
+                            <input id="profile-password-actual" type="password" name="passwordActual" required
+                                   autocomplete="current-password" class="hp-password-input">
+                            <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nueva contraseña</label>
-                        <input type="password" name="passwordNueva" class="form-control" required autocomplete="new-password">
+                    <div class="mb-3 hp-profile-password-wrap">
+                        <label class="form-label" for="profile-password-nueva">Nueva contraseña</label>
+                        <div class="hp-input-with-toggle">
+                            <input id="profile-password-nueva" type="password" name="passwordNueva" required
+                                   autocomplete="new-password" class="hp-password-input">
+                            <th:block th:replace="~{fragments/site-header :: hpPasswordToggle}"></th:block>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-outline-primary hp-btn-profile">Cambiar contraseña</button>
                 </form>
@@ -91,6 +99,7 @@
 
 <footer th:replace="~{fragments/site-footer :: footer}"></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" th:src="@{/js/password-toggle.js}"></script>
 <script th:src="@{/js/cart.js}"></script>
 </body>
 </html>
