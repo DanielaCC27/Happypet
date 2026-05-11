@@ -1106,6 +1106,8 @@ a:hover {
     color: var(--hp-text-muted);
     cursor: pointer;
     line-height: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     transition: color 0.15s ease, background-color 0.15s ease;
 }
 
