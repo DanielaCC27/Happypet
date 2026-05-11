@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/api/test/mail/**",
                                 "/css/**",
                                 "/js/**",
+                                "/images/**",
                                 "/data/**",
                                 "/api/ubicaciones/colombia"
                         ).permitAll()
