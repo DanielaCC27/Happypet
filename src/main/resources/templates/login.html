@@ -24,11 +24,11 @@
                 <input id="login-username" type="text" name="username" required class="mb-3" autocomplete="username">
                 <label class="text-label d-block" for="login-password">Contraseña</label>
                 <div class="position-relative mb-3">
-                    <input id="login-password" type="password" name="password" required autocomplete="current-password"
+                    <input id="login-password" type="password" name="password" required autocomplete="new-password"
                            class="pe-5">
                     <button type="button"
-                            class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
-                            data-hp-toggle-password="login-password"
+                            class="toggle-password hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                            data-target="login-password"
                             aria-label="Mostrar u ocultar contraseña">
                         <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
                     </button>

@@ -53,8 +53,8 @@
                             <input id="profile-password-actual" type="password" name="passwordActual" required
                                    autocomplete="current-password" class="form-control pe-5">
                             <button type="button"
-                                    class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
-                                    data-hp-toggle-password="profile-password-actual"
+                                    class="toggle-password hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                                    data-target="profile-password-actual"
                                     aria-label="Mostrar u ocultar contraseña">
                                 <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
                             </button>
@@ -66,8 +66,8 @@
                             <input id="profile-password-nueva" type="password" name="passwordNueva" required
                                    autocomplete="new-password" class="form-control pe-5">
                             <button type="button"
-                                    class="hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
-                                    data-hp-toggle-password="profile-password-nueva"
+                                    class="toggle-password hp-pw-eye-btn btn btn-link position-absolute end-0 top-50 translate-middle-y p-1 me-1 border-0"
+                                    data-target="profile-password-nueva"
                                     aria-label="Mostrar u ocultar contraseña">
                                 <img th:src="@{/images/password-eye.svg}" width="22" height="22" alt="">
                             </button>
