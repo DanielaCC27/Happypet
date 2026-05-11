@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
+                                "/favicon.ico",
+                                "/favicon.svg",
                                 "/data/**",
                                 "/api/ubicaciones/colombia"
                         ).permitAll()
