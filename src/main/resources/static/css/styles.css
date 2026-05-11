@@ -1091,6 +1091,8 @@ a:hover {
 
 .hp-password-toggle {
     flex: 0 0 auto;
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1130,6 +1132,7 @@ a:hover {
     display: block;
     vertical-align: middle;
     pointer-events: none;
+    user-select: none;
 }
 
 .pw-strength-wrap {
