@@ -126,8 +126,12 @@ public class ProductoController {
     @GetMapping("/eliminar/{id}")
     public String eliminarProducto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
-        productoService.eliminarProducto(id);
-        redirectAttributes.addFlashAttribute("flashSuccess", "Producto eliminado correctamente.");
+        try {
+            productoService.eliminarProducto(id);
+            redirectAttributes.addFlashAttribute("flashSuccess", "Producto eliminado correctamente.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("flashError", e.getMessage());
+        }
         return "redirect:/home";
     }
 }

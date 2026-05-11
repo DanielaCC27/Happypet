@@ -18,6 +18,15 @@
 <main id="main-content" class="catalog-container flex-grow-1 py-4 mt-4">
     <p class="text-description mb-2">Encuentra lo mejor para tu mascota, con envío y calidad que merecen.</p>
 
+    <div th:if="${flashSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${flashSuccess}">Mensaje</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+    <div th:if="${flashError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${flashError}">Mensaje</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h1 class="h4 mb-0 fw-bold">Catálogo de productos</h1>
         <p class="mb-0 small text-muted" th:if="${q != null and !#strings.isEmpty(q)}"

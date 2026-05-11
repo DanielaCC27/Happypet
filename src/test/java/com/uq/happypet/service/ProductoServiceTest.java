@@ -1,6 +1,8 @@
 package com.uq.happypet.service;
 
 import com.uq.happypet.model.Producto;
+import com.uq.happypet.repository.DetallePedidoRepository;
+import com.uq.happypet.repository.ItemCarritoRepository;
 import com.uq.happypet.repository.ProductoRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +21,12 @@ class ProductoServiceTest {
 
     @Mock
     private ProductoRepository productoRepository;
+
+    @Mock
+    private ItemCarritoRepository itemCarritoRepository;
+
+    @Mock
+    private DetallePedidoRepository detallePedidoRepository;
 
     @InjectMocks
     private ProductoService productoService;
@@ -63,8 +71,24 @@ class ProductoServiceTest {
     @Test
     void deberiaEliminarProducto() {
 
+        when(productoRepository.existsById(1L)).thenReturn(true);
+        when(detallePedidoRepository.existsByProducto_Id(1L)).thenReturn(false);
+
         productoService.eliminarProducto(1L);
 
+        verify(itemCarritoRepository).deleteByProducto_Id(1L);
         verify(productoRepository).deleteById(1L);
+    }
+
+    @Test
+    void noDeberiaEliminarProductoSiEstaEnPedidos() {
+
+        when(productoRepository.existsById(1L)).thenReturn(true);
+        when(detallePedidoRepository.existsByProducto_Id(1L)).thenReturn(true);
+
+        assertThrows(IllegalStateException.class, () -> productoService.eliminarProducto(1L));
+
+        verify(itemCarritoRepository, never()).deleteByProducto_Id(anyLong());
+        verify(productoRepository, never()).deleteById(anyLong());
     }
 }

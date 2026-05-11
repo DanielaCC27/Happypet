@@ -1,6 +1,8 @@
 package com.uq.happypet.service;
 
 import com.uq.happypet.model.Producto;
+import com.uq.happypet.repository.DetallePedidoRepository;
+import com.uq.happypet.repository.ItemCarritoRepository;
 import com.uq.happypet.repository.ProductoRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +12,15 @@ import java.util.List;
 public class ProductoService {
 
     private final ProductoRepository productoRepository;
+    private final ItemCarritoRepository itemCarritoRepository;
+    private final DetallePedidoRepository detallePedidoRepository;
 
-    public ProductoService(ProductoRepository productoRepository) {
+    public ProductoService(ProductoRepository productoRepository,
+                           ItemCarritoRepository itemCarritoRepository,
+                           DetallePedidoRepository detallePedidoRepository) {
         this.productoRepository = productoRepository;
+        this.itemCarritoRepository = itemCarritoRepository;
+        this.detallePedidoRepository = detallePedidoRepository;
     }
 
     public List<Producto> listarProductos() {
@@ -78,6 +86,14 @@ public class ProductoService {
     }
 
     public void eliminarProducto(Long id) {
+        if (!productoRepository.existsById(id)) {
+            return;
+        }
+        if (detallePedidoRepository.existsByProducto_Id(id)) {
+            throw new IllegalStateException(
+                    "No se puede eliminar el producto porque consta en uno o m\u00e1s pedidos.");
+        }
+        itemCarritoRepository.deleteByProducto_Id(id);
         productoRepository.deleteById(id);
     }
 }
