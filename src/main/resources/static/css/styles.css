@@ -1041,8 +1041,57 @@ a:hover {
     margin-bottom: var(--space-16);
 }
 
-.hp-password-field > input[type="password"] {
+.hp-password-field .hp-input-with-toggle input {
     width: 100%;
+}
+
+/* Campo contraseña + botón mostrar/ocultar */
+.hp-input-with-toggle {
+    position: relative;
+    width: 100%;
+}
+
+.hp-input-with-toggle > input[type="password"],
+.hp-input-with-toggle > input[type="text"] {
+    padding-right: 2.75rem;
+}
+
+.hp-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.35rem;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0.35rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--hp-text-muted);
+    cursor: pointer;
+    line-height: 0;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.hp-password-toggle:hover {
+    color: var(--hp-primary);
+    background-color: rgba(44, 111, 183, 0.08);
+}
+
+.hp-password-toggle:focus-visible {
+    outline: 2px solid var(--hp-primary);
+    outline-offset: 2px;
+}
+
+.hp-password-toggle-icon[hidden] {
+    display: none;
+}
+
+.hp-password-toggle .hp-password-toggle-icon {
+    display: block;
+    vertical-align: middle;
+    pointer-events: none;
 }
 
 .pw-strength-wrap {
