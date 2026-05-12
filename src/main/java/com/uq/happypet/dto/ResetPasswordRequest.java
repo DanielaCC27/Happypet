@@ -1,5 +1,6 @@
 package com.uq.happypet.dto;
 
+import com.uq.happypet.util.PasswordPolicies;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -10,10 +11,7 @@ public class ResetPasswordRequest {
     private String token;
 
     @NotBlank(message = "La contrasena es obligatoria")
-    @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$",
-            message = "Contrasena insegura"
-    )
+    @Pattern(regexp = PasswordPolicies.PATTERN, message = PasswordPolicies.MESSAGE)
     @Size(max = 128)
     private String password;
 

@@ -45,7 +45,7 @@
         <section class="card border-0 shadow-sm mb-4" id="cuenta-seguridad" th:if="${usuario.oauthProvider == null}">
             <div class="card-body p-4">
                 <h2 class="h6 text-uppercase text-muted mb-3">Seguridad</h2>
-                <p class="small text-muted mb-3">La nueva contraseña debe cumplir: al menos 8 caracteres, mayúscula, minúscula, número y símbolo (@#$%^&amp;+=!).</p>
+                <p class="small text-muted mb-3">La nueva contraseña debe cumplir: al menos 8 caracteres, mayúscula, minúscula, número y un símbolo (cualquier carácter que no sea solo letras o números).</p>
                 <form th:action="@{/usuarios/cambiar-password}" method="post">
                     <div class="mb-3 hp-profile-password-wrap">
                         <label class="form-label" for="profile-password-actual">Contraseña actual</label>

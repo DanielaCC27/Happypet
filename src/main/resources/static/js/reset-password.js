@@ -50,7 +50,8 @@
 
     token = token.trim();
 
-    var SPECIAL_RE = /[@#$%^&+=!]/;
+    /** Alineado con PasswordPolicies: simbolo = cualquier caracter que no sea letra Unicode ni digito. */
+    var SPECIAL_RE = /[^\p{L}\p{N}]/u;
 
     function evaluateRules(value) {
         return {

@@ -40,6 +40,12 @@ class RegisterRequestValidationTest {
     }
 
     @Test
+    void passwordConSimboloFueraDeListaAcotada_sinViolaciones() {
+        RegisterRequest r = new RegisterRequest("Maria", "maria@test.com", "maria", "Valida123*");
+        assertTrue(validator.validate(r).isEmpty());
+    }
+
+    @Test
     void correoInvalido_violacionEnCorreo() {
         RegisterRequest r = new RegisterRequest("Maria", "no-es-correo", "maria", "Valida123!");
         Set<ConstraintViolation<RegisterRequest>> violations = validator.validate(r);

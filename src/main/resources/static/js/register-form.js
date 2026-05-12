@@ -6,7 +6,8 @@
 
     /** /^[a-zA-ZaeiouAEIOUnN ]+$/ con acentos y enie */
     var NOMBRE_RE = /^[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00f1\u00d1 ]+$/;
-    var SPECIAL_RE = /[@#$%^&+=!]/;
+    /** Cualquier carácter que no sea letra Unicode ni dígito (alineado con PasswordPolicies en el servidor). */
+    var SPECIAL_RE = /[^\p{L}\p{N}]/u;
 
     function evaluateRules(value) {
         return {
