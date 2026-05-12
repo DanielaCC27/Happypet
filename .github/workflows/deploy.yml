@@ -5,6 +5,14 @@ on:
     branches:
       - main
 
+# Secrets GitHub (Settings > Secrets and variables > Actions):
+#   EC2_*           — despliegue (existentes)
+#   TESTRAIL_URL    — base URL del servidor TestRail
+#   TESTRAIL_USER   — email / usuario API
+#   TESTRAIL_API_KEY — clave API
+#   TESTRAIL_RUN_ID — id numerico del Test Run donde registrar resultados
+# Si faltan secretos TestRail o falla la API, los tests y el deploy continuan (errores solo en logs [TestRail]).
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -17,13 +25,58 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 17
 
       - name: Dar permisos a Maven Wrapper
         run: chmod +x mvnw
 
-      - name: Ejecutar pruebas
-        run: ./mvnw test
+      - name: Ejecutar pruebas automatizadas (reporte TestRail)
+        shell: bash
+        env:
+          TESTRAIL_REPORT_RESULTS: "true"
+          TESTRAIL_URL: ${{ secrets.TESTRAIL_URL }}
+          TESTRAIL_USER: ${{ secrets.TESTRAIL_USER }}
+          TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+          TESTRAIL_RUN_ID: ${{ secrets.TESTRAIL_RUN_ID }}
+        run: |
+          set -euo pipefail
+          echo "::group::[TestRail] Inicio de reporte en CI"
+          echo "[TestRail] TESTRAIL_REPORT_RESULTS=${TESTRAIL_REPORT_RESULTS}"
+          if [[ -n "${TESTRAIL_URL:-}" ]]; then
+            echo "[TestRail] TESTRAIL_URL definido (valor oculto en logs)"
+          else
+            echo "[TestRail] TESTRAIL_URL vacio: no se llamara a la API (definir secret en el repositorio)"
+          fi
+          if [[ -n "${TESTRAIL_RUN_ID:-}" ]]; then
+            echo "[TestRail] TESTRAIL_RUN_ID definido"
+          else
+            echo "[TestRail] TESTRAIL_RUN_ID vacio: integracion inactiva hasta configurar secret"
+          fi
+          echo "[TestRail] Mapeo FQCN#metodo -> TC-*: src/test/resources/testrail-automated-mapping.properties"
+          echo "[TestRail] IDs numericos (requeridos para enviar): src/test/resources/testrail-case-ids.properties"
+          if [[ -f src/test/resources/testrail-case-ids.properties ]]; then
+            MAP_COUNT=$(grep -cE '^[[:space:]]*TC-[^[:space:]#=]+[[:space:]]*=' src/test/resources/testrail-case-ids.properties || true)
+            echo "[TestRail] Lineas con TC-*= en case-ids (aprox. casos con id numerico): ${MAP_COUNT:-0}"
+          fi
+          echo "[TestRail] Errores de red/API se registran como warn y no fallan el job si los tests pasan."
+          echo "::endgroup::"
+
+          set -o pipefail
+          ./mvnw -B -ntp test 2>&1 | tee mvn-test.log
+          MVN_EXIT=${PIPESTATUS[0]}
+
+          echo "::group::[TestRail] Lineas registradas / errores manejados (grep en log Maven)"
+          set +o pipefail
+          if grep -q '\[TestRail\]' mvn-test.log; then
+            grep '\[TestRail\]' mvn-test.log | tail -n 500
+          else
+            echo "[TestRail] Sin lineas [TestRail] en la salida: suele indicar case_ids vacios, secretos ausentes o nivel de log."
+          fi
+          set -o pipefail
+          echo "[TestRail] Codigo salida Maven (tests): ${MVN_EXIT}"
+          echo "::endgroup::"
+
+          exit "${MVN_EXIT}"
 
       - name: Compilar proyecto
         run: ./mvnw clean package -DskipTests

@@ -55,12 +55,12 @@ public class TestRailRestClient {
 				.POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
 				.build();
 
-		log.debug("TestRail HTTP POST uri={} caseId={} statusId={}", uri, caseId, statusId);
+		log.debug("[TestRail] HTTP POST uri={} caseId={} statusId={}", uri, caseId, statusId);
 
 		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 		int code = response.statusCode();
 		if (code >= 200 && code < 300) {
-			log.debug("TestRail HTTP {} OK (body omitted from logs)", code);
+			log.debug("[TestRail] HTTP {} OK (body omitted from logs)", code);
 			return;
 		}
 		String preview = TestRailUriSupport.previewForLog(response.body(), BODY_PREVIEW_MAX);

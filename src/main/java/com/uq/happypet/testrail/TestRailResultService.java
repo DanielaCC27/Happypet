@@ -42,17 +42,17 @@ public class TestRailResultService {
 	private void sendResult(long caseId, int statusId, String comment, String label) {
 		if (Boolean.TRUE.equals(properties.getEnabled()) && !properties.hasMinimumConfiguration()) {
 			if (missingConfigWarned.compareAndSet(false, true)) {
-				log.warn("TestRail: testrail.enabled=true but url, user, api-key or run-id is missing; results will not be sent");
+				log.warn("[TestRail] testrail.enabled=true but url, user, api-key or run-id is missing; results will not be sent");
 			}
 		}
 		if (!properties.isIntegrationEnabled()) {
-			log.debug("TestRail: integration inactive; skip {} for caseId={}", label, caseId);
+			log.debug("[TestRail] integration inactive; skip {} for caseId={}", label, caseId);
 			return;
 		}
 		Long runId = properties.getRunId();
 		try {
 			restClient.addResult(runId, caseId, statusId, comment);
-			log.info("TestRail: {} recorded runId={} caseId={} statusId={}", label, runId, caseId, statusId);
+			log.info("[TestRail] {} recorded runId={} caseId={} statusId={}", label, runId, caseId, statusId);
 		}
 		catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -62,7 +62,7 @@ public class TestRailResultService {
 			throw new TestRailIntegrationException("Network or I/O error while sending result to TestRail", e);
 		}
 		catch (TestRailIntegrationException e) {
-			log.error("TestRail: HTTP failure sending {} runId={} caseId={}: {}", label, runId, caseId, e.getMessage());
+			log.error("[TestRail] HTTP failure sending {} runId={} caseId={}: {}", label, runId, caseId, e.getMessage());
 			throw e;
 		}
 	}

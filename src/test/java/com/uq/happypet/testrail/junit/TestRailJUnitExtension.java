@@ -2,6 +2,7 @@ package com.uq.happypet.testrail.junit;
 
 import java.util.Map;
 import java.util.OptionalLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -29,6 +30,7 @@ public class TestRailJUnitExtension implements AfterTestExecutionCallback {
 
 	private static final Map<String, String> MAPPING = TestRailAutomatedMappingLoader.load();
 	private static final Map<String, Long> CASE_IDS = TestRailCaseNumericIdLoader.load();
+	private static final AtomicBoolean firstSendBanner = new AtomicBoolean();
 
 	@Override
 	public void afterTestExecution(ExtensionContext context) {
@@ -44,18 +46,21 @@ public class TestRailJUnitExtension implements AfterTestExecutionCallback {
 		String key = fqcn + "#" + method;
 		String caseRef = MAPPING.get(key);
 		if (caseRef == null) {
-			log.trace("TestRail: no mapping entry for {}", key);
+			log.trace("[TestRail] no mapping entry for {}", key);
 			return;
 		}
 		OptionalLong numeric = TestRailCaseNumericIdLoader.resolveNumericId(CASE_IDS, caseRef);
 		if (numeric.isEmpty()) {
-			log.debug("TestRail: no numeric case_id for ref {} key {}", caseRef, key);
+			log.debug("[TestRail] no numeric case_id for ref {} key {}", caseRef, key);
 			return;
 		}
 		TestRailProperties properties = TestRailPropertiesFromEnvironment.load();
 		if (!properties.isIntegrationEnabled()) {
-			log.debug("TestRail: integration inactive; skip key {}", key);
+			log.debug("[TestRail] integration inactive; skip key {}", key);
 			return;
+		}
+		if (firstSendBanner.compareAndSet(false, true)) {
+			log.info("[TestRail] Inicio de envio al runId={} (mapeo + case_id + credenciales OK)", properties.getRunId());
 		}
 		long caseId = numeric.getAsLong();
 		TestRailResultService service = new TestRailResultService(properties,
@@ -71,10 +76,12 @@ public class TestRailJUnitExtension implements AfterTestExecutionCallback {
 			}
 		}
 		catch (TestRailIntegrationException e) {
-			log.warn("TestRail: could not report result for {} ref={} caseId={}: {}", key, caseRef, caseId, e.getMessage());
+			log.warn("[TestRail] error controlado (no falla el test): key={} ref={} caseId={}: {}", key, caseRef, caseId,
+					e.getMessage());
 		}
 		catch (Exception e) {
-			log.warn("TestRail: unexpected error reporting {} ref={} caseId={}: {}", key, caseRef, caseId, e.toString());
+			log.warn("[TestRail] error inesperado controlado (no falla el test): key={} ref={} caseId={}: {}", key, caseRef,
+					caseId, e.toString());
 		}
 	}
 
