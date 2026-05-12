@@ -13,6 +13,10 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Controlador encargado de la gestión
+ * y visualización de pedidos del usuario.
+ */
 @Controller
 public class OrderPageController {
 
@@ -22,48 +26,105 @@ public class OrderPageController {
         this.orderService = orderService;
     }
 
+    /**
+     * Muestra el historial de pedidos
+     * del usuario autenticado.
+     */
     @GetMapping("/pedidos")
     public String misPedidos(Model model, Principal principal) {
+
         List<Pedido> pedidos = Collections.emptyList();
+
         try {
+
+            // Verifica si existe un usuario autenticado
             if (principal != null && principal.getName() != null) {
-                pedidos = orderService.listarPedidosUsuario(principal.getName());
+
+                pedidos = orderService
+                        .listarPedidosUsuario(principal.getName());
             }
+
         } catch (RuntimeException e) {
-            model.addAttribute("errorMessage",
-                    "No pudimos cargar tus pedidos en este momento. Intenta nuevamente.");
+
+            model.addAttribute(
+                    "errorMessage",
+                    "No pudimos cargar tus pedidos en este momento. Intenta nuevamente."
+            );
         }
+
         model.addAttribute("pedidos", pedidos);
+
+        // Configuración visual de la vista
         model.addAttribute("toolbarLayout", "pageTitle");
         model.addAttribute("toolbarActiveSection", "pedidos");
+
         model.addAttribute("catalogPageEyebrow", "Tu historial");
         model.addAttribute("catalogPageTitle", "Mis pedidos");
-        model.addAttribute("catalogPageHint", "Envio, pago y facturacion de cada pedido.");
+
+        model.addAttribute(
+                "catalogPageHint",
+                "Envio, pago y facturacion de cada pedido."
+        );
+
         return "pedidos/mis-pedidos";
     }
 
+    /**
+     * Muestra el detalle de un pedido específico.
+     */
     @GetMapping("/pedidos/{id}")
-    public String detallePedido(@PathVariable Long id, Model model, Principal principal) {
-        Pedido pedido = orderService.obtenerPedidoUsuario(principal.getName(), id);
+    public String detallePedido(@PathVariable Long id,
+                                Model model,
+                                Principal principal) {
+
+        Pedido pedido = orderService
+                .obtenerPedidoUsuario(principal.getName(), id);
+
         model.addAttribute("pedido", pedido);
+
+        // Configuración visual de la página
         model.addAttribute("toolbarLayout", "pageTitle");
         model.addAttribute("toolbarActiveSection", "pedidos");
+
         model.addAttribute("catalogPageEyebrow", "Pedido");
         model.addAttribute("catalogPageTitle", "Detalle #" + id);
-        model.addAttribute("catalogPageHint", "Resumen de tu compra.");
+
+        model.addAttribute(
+                "catalogPageHint",
+                "Resumen de tu compra."
+        );
+
         return "pedidos/pedido-detalle";
     }
 
+    /**
+     * Permite cancelar un pedido del usuario.
+     */
     @PostMapping("/pedidos/{id}/cancelar")
     public String cancelar(@PathVariable Long id,
                            Principal principal,
                            RedirectAttributes redirectAttributes) {
+
         try {
-            orderService.cancelarPedidoUsuario(principal.getName(), id);
-            redirectAttributes.addFlashAttribute("successMessage", "Pedido cancelado.");
+
+            orderService.cancelarPedidoUsuario(
+                    principal.getName(),
+                    id
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Pedido cancelado."
+            );
+
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
+
         return "redirect:/pedidos";
     }
 }

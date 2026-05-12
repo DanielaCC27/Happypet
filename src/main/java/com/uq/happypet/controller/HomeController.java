@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Collections;
 
+/**
+ * Controlador principal encargado
+ * de cargar la página de inicio.
+ */
 @Controller
 public class HomeController {
 
@@ -17,16 +21,37 @@ public class HomeController {
         this.productoService = productoService;
     }
 
+    /**
+     * Muestra la página principal con el listado
+     * de productos disponibles.
+     *
+     * Permite aplicar filtros opcionales
+     * por búsqueda y categoría.
+     */
     @GetMapping({"/", "/home"})
-    public String home(@RequestParam(value = "q", required = false) String query,
-                       @RequestParam(value = "categoria", required = false) String categoria,
-                       Model model) {
+    public String home(
+            @RequestParam(value = "q", required = false) String query,
+            @RequestParam(value = "categoria", required = false) String categoria,
+            Model model
+    ) {
+
+        // Obtiene productos aplicando filtros opcionales
         var lista = productoService.listarProductos(query, categoria);
-        model.addAttribute("productos", lista != null ? lista : Collections.emptyList());
+
+        // Evita valores nulos en la vista
+        model.addAttribute(
+                "productos",
+                lista != null ? lista : Collections.emptyList()
+        );
+
+        // Parámetros de búsqueda utilizados en la vista
         model.addAttribute("q", query);
         model.addAttribute("categoria", categoria);
+
+        // Configuración visual de la barra superior
         model.addAttribute("toolbarLayout", "search");
         model.addAttribute("toolbarActiveSection", "home");
+
         return "home";
     }
 }

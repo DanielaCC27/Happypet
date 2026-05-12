@@ -7,6 +7,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad que representa un pedido realizado por un usuario.
+ *
+ * Contiene información relacionada con:
+ * - datos de compra
+ * - entrega
+ * - facturación
+ * - productos asociados al pedido
+ */
 @Entity
 @Table(name = "pedidos")
 public class Pedido {
@@ -15,64 +24,124 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Usuario que realizó el pedido.
+     */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    /**
+     * Fecha y hora en que se registró el pedido.
+     */
     @Column(nullable = false)
     private LocalDateTime fecha;
 
+    /**
+     * Valor total de la compra.
+     */
     @Column(nullable = false)
     private double total;
 
+    /**
+     * Estado actual del pedido.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     private PedidoEstado estado;
 
+    /**
+     * Dirección de entrega registrada por el usuario.
+     */
     @Column(nullable = false, length = 1000)
     private String direccionEnvio;
 
+    /**
+     * Método de pago utilizado para la compra.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 24)
     private MetodoPago metodoPago;
 
+    /**
+     * Fecha de entrega seleccionada por el cliente.
+     */
     @Column(nullable = false)
     private LocalDate fechaEntregaPreferida;
 
+    /**
+     * Franja horaria preferida para la entrega.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 24)
     private HorarioEntrega horarioEntrega;
 
-    /** Eligible delivery date range at order time (calendar days +4 to +6 from order date). */
+    /**
+     * Fecha mínima disponible para la entrega.
+     */
     @Column(nullable = false)
     private LocalDate ventanaEntregaDesde;
 
+    /**
+     * Fecha máxima disponible para la entrega.
+     */
     @Column(nullable = false)
     private LocalDate ventanaEntregaHasta;
 
+    /**
+     * Nombre utilizado para facturación.
+     */
     @Column(nullable = false, length = 200)
     private String facturacionNombre;
 
+    /**
+     * Apellidos utilizados para facturación.
+     */
     @Column(length = 200)
     private String facturacionApellidos;
 
+    /**
+     * Tipo de documento de facturación.
+     */
     @Column(length = 32)
     private String facturacionTipoDocumento;
 
+    /**
+     * Número de documento de facturación.
+     */
     @Column(nullable = false, length = 32)
     private String facturacionDocumento;
 
+    /**
+     * Dirección de facturación.
+     */
     @Column(nullable = false, length = 1000)
     private String facturacionDireccion;
 
+    /**
+     * Correo electrónico asociado a la facturación.
+     */
     @Column(nullable = false, length = 255)
     private String facturacionEmail;
 
-    /** Marca de tiempo en que el cliente confirmo haber recibido el pedido (solo si estado ENTREGADO). */
+    /**
+     * Fecha y hora en que el cliente confirmó
+     * la recepción del pedido.
+     */
     @Column(name = "fecha_confirmacion_entrega")
     private LocalDateTime fechaConfirmacionEntrega;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    /**
+     * Productos asociados al pedido.
+     *
+     * orphanRemoval elimina automáticamente
+     * los detalles desvinculados del pedido.
+     */
+    @OneToMany(
+            mappedBy = "pedido",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<DetallePedido> detalles = new ArrayList<>();
 
     public Pedido() {

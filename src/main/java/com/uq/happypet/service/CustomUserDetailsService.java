@@ -17,19 +17,34 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    /**
+     * Carga la información del usuario desde la base de datos
+     * para el proceso de autenticación de Spring Security.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        // Busca el usuario por username
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("Usuario no encontrado"));
 
+        /*
+         * Construcción del objeto UserDetails utilizado
+         * por Spring Security durante la autenticación.
+         */
         return org.springframework.security.core.userdetails.User
                 .withUsername(usuario.getUsername())
                 .password(usuario.getPassword())
+
+                // Deshabilita el acceso si la cuenta está inactiva
                 .disabled(!usuario.isAccountActive())
+
+                // Asignación de roles/permisos del usuario
                 .authorities(Collections.singletonList(
                         new SimpleGrantedAuthority(usuario.getRole())
                 ))
+
                 .build();
     }
 }

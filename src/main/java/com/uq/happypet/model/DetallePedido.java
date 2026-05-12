@@ -2,6 +2,12 @@ package com.uq.happypet.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Entidad que representa el detalle de un pedido.
+ *
+ * Cada registro almacena la información de un producto
+ * incluido dentro de una compra realizada.
+ */
 @Entity
 @Table(name = "detalle_pedido")
 public class DetallePedido {
@@ -10,24 +16,41 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Pedido al que pertenece el detalle.
+     */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
 
+    /**
+     * Producto asociado al detalle del pedido.
+     */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
 
+    /**
+     * Cantidad de unidades compradas.
+     */
     @Column(nullable = false)
     private int cantidad;
 
+    /**
+     * Precio unitario registrado al momento de la compra.
+     */
     @Column(nullable = false, name = "precio_unitario")
     private double precioUnitario;
 
     public DetallePedido() {
     }
 
-    public DetallePedido(Pedido pedido, Producto producto, int cantidad, double precioUnitario) {
+    public DetallePedido(
+            Pedido pedido,
+            Producto producto,
+            int cantidad,
+            double precioUnitario
+    ) {
         this.pedido = pedido;
         this.producto = producto;
         this.cantidad = cantidad;

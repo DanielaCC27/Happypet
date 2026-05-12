@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad que representa el carrito de compras
+ * asociado a un usuario dentro del sistema.
+ */
 @Entity
 @Table(name = "carritos")
 public class Carrito {
@@ -13,14 +17,31 @@ public class Carrito {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Usuario propietario del carrito.
+     * Se utiliza carga perezosa para optimizar rendimiento.
+     */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
+    /**
+     * Indica si el carrito se encuentra activo.
+     */
     @Column(nullable = false)
     private boolean activo = true;
 
-    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    /**
+     * Lista de productos agregados al carrito.
+     *
+     * orphanRemoval permite eliminar automáticamente
+     * los items que se desvinculen del carrito.
+     */
+    @OneToMany(
+            mappedBy = "carrito",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<ItemCarrito> items = new ArrayList<>();
 
     public Carrito() {
