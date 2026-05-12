@@ -62,9 +62,12 @@ jobs:
           echo "[TestRail] Errores de red/API se registran como warn y no fallan el job si los tests pasan."
           echo "::endgroup::"
 
+          # Capturar MVN_EXIT aunque falle el pipeline (set -e + pipefail saldría antes sin esto).
+          set +e
           set -o pipefail
           ./mvnw -B -ntp test 2>&1 | tee mvn-test.log
           MVN_EXIT=${PIPESTATUS[0]}
+          set -e
 
           echo "::group::[TestRail] Lineas registradas / errores manejados (grep en log Maven)"
           set +o pipefail
@@ -79,7 +82,13 @@ jobs:
 
           TEST_END=$(date +%s)
           chmod +x scripts/ci-test-summary.sh || true
-          bash scripts/ci-test-summary.sh "${TEST_START}" "${TEST_END}" "${MVN_EXIT}" mvn-test.log || true
+          set +e
+          bash scripts/ci-test-summary.sh "${TEST_START}" "${TEST_END}" "${MVN_EXIT}" mvn-test.log
+          SUMMARY_EXIT=$?
+          set -e
+          if [[ "${SUMMARY_EXIT}" -ne 0 ]]; then
+            echo "::error::ci-test-summary.sh falló con código ${SUMMARY_EXIT}. Revisa el grupo 'ci-test-summary' en el log; un script .sh en UTF-16 en Linux suele impedir crear reports/ y los artifacts quedan vacíos."
+          fi
 
           exit "${MVN_EXIT}"
 
