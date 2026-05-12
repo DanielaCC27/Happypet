@@ -40,6 +40,7 @@ jobs:
           TESTRAIL_RUN_ID: ${{ secrets.TESTRAIL_RUN_ID }}
         run: |
           set -euo pipefail
+          TEST_START=$(date +%s)
           echo "::group::[TestRail] Inicio de reporte en CI"
           echo "[TestRail] TESTRAIL_REPORT_RESULTS=${TESTRAIL_REPORT_RESULTS}"
           if [[ -n "${TESTRAIL_URL:-}" ]]; then
@@ -76,7 +77,21 @@ jobs:
           echo "[TestRail] Codigo salida Maven (tests): ${MVN_EXIT}"
           echo "::endgroup::"
 
+          TEST_END=$(date +%s)
+          chmod +x scripts/ci-test-summary.sh || true
+          bash scripts/ci-test-summary.sh "${TEST_START}" "${TEST_END}" "${MVN_EXIT}" mvn-test.log || true
+
           exit "${MVN_EXIT}"
+
+      - name: Subir resumen de pruebas (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-execution-summary
+          path: |
+            reports/test-execution-summary.md
+            reports/test-execution-summary.html
+          if-no-files-found: warn
 
       - name: Compilar proyecto
         run: ./mvnw clean package -DskipTests
